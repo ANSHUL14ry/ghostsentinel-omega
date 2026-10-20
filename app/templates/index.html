@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07090d">
+<title>GHOSTSENTINEL Ω | Wi-Fi Security &amp; Privacy Console</title>
+<style>
+:root{
+ --bg:#06080c;--panel:#0b1018;--panel2:#0e1520;--line:#27303d;--red:#ff304f;
+ --red2:#a80f2a;--cyan:#8bdcff;--muted:#8293a8;--text:#eaf2fc;--green:#39e6a0;
+ --amber:#ffbd4a;--blue:#5aa8ff;--shadow:0 0 22px rgba(255,48,79,.09);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:
+ radial-gradient(ellipse at 15% 0%,rgba(120,10,32,.18),transparent 36%),
+ radial-gradient(ellipse at 100% 80%,rgba(25,78,115,.09),transparent 40%),var(--bg);
+ color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.14;z-index:0;
+ background-image:linear-gradient(rgba(130,160,190,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(130,160,190,.06) 1px,transparent 1px);
+ background-size:32px 32px;mask-image:linear-gradient(to bottom,black,transparent 95%)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.app{position:relative;z-index:1;min-height:100vh}
+
+/* Topbar */
+.topbar{height:78px;border-bottom:1px solid #57202c;background:rgba(5,8,13,.93);display:flex;align-items:center;gap:24px;padding:0 22px;position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:12px;min-width:300px}
+.brand-mark{width:45px;height:45px;border:1px solid var(--red);border-radius:12px;display:grid;place-items:center;color:var(--red);font-size:25px;box-shadow:0 0 22px #ff304f2a;position:relative}
+.brand-mark:after{content:"";position:absolute;inset:-5px;border:1px solid #ff304f25;border-radius:15px;animation:pulse 2.5s infinite}
+.brand-name{font-size:19px;letter-spacing:2px;font-weight:850}.brand-name span{color:var(--red)}
+.brand-sub{font-size:11px;color:var(--muted);letter-spacing:.7px}
+.top-stats{display:flex;align-items:center;gap:25px;margin-left:auto}
+.mini-stat{min-width:100px}.mini-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px}.mini-value{font-size:12px;font-weight:700}
+.meter{height:4px;width:72px;background:#26303d;border-radius:10px;display:inline-block;vertical-align:middle;margin-left:7px;overflow:hidden}.meter i{display:block;height:100%;background:var(--green);width:100%}
+.connection{display:flex;gap:9px;align-items:center;color:var(--green);font-size:12px}
+.top-actions{display:flex;gap:9px}
+.icon-btn{border:1px solid var(--line);background:#0c1119;color:var(--muted);border-radius:9px;width:37px;height:37px;display:grid;place-items:center;transition:.2s}
+.icon-btn:hover{color:var(--red);border-color:var(--red)}
+
+/* Layout & Sidebar */
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:calc(100vh - 78px)}
+.sidebar{border-right:1px solid #222d39;padding:20px 12px;display:flex;flex-direction:column;background:rgba(5,8,13,.75);min-height:calc(100vh - 78px)}
+.nav-label{font-size:10px;color:#56687e;text-transform:uppercase;letter-spacing:1.7px;padding:7px 12px 10px}
+.nav{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid transparent;border-radius:9px;color:#a9b9cb;margin-bottom:4px;transition:.2s;text-align:left;background:transparent;width:100%}
+.nav .ico{font-size:17px;width:22px;text-align:center}.nav:hover{background:#171019;color:#fff}
+.nav.active{color:#fff;background:linear-gradient(90deg,#49101d80,#1b0c13);border-color:#842337;box-shadow:inset 3px 0 var(--red),var(--shadow);font-weight:650}
+.sidebar-bottom{margin-top:auto;border:1px solid #2b1b26;background:linear-gradient(140deg,#160c13,#090d14);border-radius:12px;padding:14px;overflow:hidden;position:relative}
+.radar{width:100%;aspect-ratio:1;max-width:145px;margin:5px auto 15px;border:1px solid #5d2635;border-radius:50%;position:relative;background:repeating-radial-gradient(circle,transparent 0 20px,#45202c 21px 22px),linear-gradient(45deg,transparent 49.5%,#552433 50%,transparent 50.5%)}
+.radar:before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 300deg,#ff304f55 350deg,transparent 360deg);animation:spin 4s linear infinite}
+.radar:after{content:"";position:absolute;width:6px;height:6px;background:var(--red);border-radius:50%;top:32%;left:63%;box-shadow:0 0 13px var(--red),-30px 24px 0 -1px var(--red)}
+.side-quote{font-size:12px;color:#bdcadd}.side-quote b{color:var(--red)}.side-version{font-size:10px;color:#5f7188;margin-top:14px}
+
+/* Main Area */
+.main{padding:22px 24px 34px;min-width:0}
+.page-head{display:flex;align-items:center;gap:15px;margin:0 0 20px;flex-wrap:wrap}
+.page-head h1{font-size:23px;margin:0;letter-spacing:-.5px}.page-head h1 span{color:var(--red)}.page-head p{margin:4px 0 0;color:var(--muted)}
+.head-right{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.status-pill,.live-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #224a3b;background:#0b1b16;color:var(--green);padding:8px 11px;border-radius:8px;font-size:11px;font-weight:750;letter-spacing:.5px}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 9px currentColor;display:inline-block}.dot.blink{animation:blink 1.2s infinite}
+
+.banner{display:flex;gap:10px;align-items:flex-start;background:#101a14;border:1px solid #234d38;color:#a8e0c2;border-radius:9px;padding:11px 14px;margin-bottom:17px;font-size:12px}
+.banner b{color:var(--green)}
+.banner.warn{background:#21180b;border-color:#674b1d;color:#d9c7a1}.banner.warn b{color:var(--amber)}
+
+/* Page Views */
+.page-view{animation:fadeIn .2s ease-in-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:17px}
+.metric{background:linear-gradient(135deg,#0d131c,#080c12);border:1px solid var(--line);border-radius:12px;padding:16px;position:relative;overflow:hidden;min-height:112px;transition:.25s}
+.metric:hover{border-color:#743044;transform:translateY(-2px);box-shadow:var(--shadow)}
+.metric:after{content:"";position:absolute;width:90px;height:90px;right:-34px;top:-38px;border:1px solid #ff304f20;border-radius:50%;box-shadow:0 0 0 12px #ff304f08,0 0 0 24px #ff304f05}
+.metric-top{display:flex;align-items:center;justify-content:space-between;color:#9cb0c6;font-size:11px}
+.metric-icon{font-size:20px;color:var(--red);background:#35101b;border:1px solid #642133;border-radius:9px;width:38px;height:38px;display:grid;place-items:center}
+.metric-value{font-size:28px;font-weight:800;letter-spacing:-1px;margin-top:8px}.metric-foot{font-size:10px;color:var(--muted)}.metric-foot .green{color:var(--green)}
+
+/* Panels */
+.content-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,.9fr) minmax(260px,.83fr);gap:14px;align-items:start}
+.stack{display:grid;gap:14px;min-width:0}
+.panel{border:1px solid #293442;border-radius:12px;background:linear-gradient(145deg,rgba(13,19,28,.97),rgba(7,11,17,.97));overflow:hidden;min-width:0;box-shadow:0 8px 28px #0002;margin-bottom:14px}
+.panel-head{display:flex;align-items:center;gap:9px;padding:14px 15px;border-bottom:1px solid #222d39}
+.panel-head h2{font-size:13px;margin:0;font-weight:750;letter-spacing:.2px}.panel-head .head-icon{color:var(--red);font-size:16px}
+.panel-head .right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.panel-body{padding:15px}
+
+/* Buttons */
+.btn{border:1px solid #7e2437;background:linear-gradient(180deg,#4b101d,#280b13);color:#fff;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:750;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(1.3);box-shadow:0 0 17px #ff304f20}.btn.secondary{border-color:#344254;background:#0d141e;color:#b8c9db}.btn.secondary:hover{border-color:var(--cyan);color:#fff}
+.btn.ghost{background:transparent;border-color:#303d4c;color:#9fb0c4}.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Tables */
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:600px}
+th{text-align:left;color:#74869c;font-size:10px;font-weight:650;text-transform:uppercase;letter-spacing:.6px;padding:11px 13px;background:#0a1018;border-bottom:1px solid #26313e}
+td{padding:12px 13px;border-bottom:1px solid #18222d;font-size:11px;color:#c4d1e0;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#ff304f08}
+
+.network-name{display:flex;align-items:center;gap:8px}
+.wifi-icon{color:var(--green);font-size:15px}.wifi-icon.warn{color:var(--red)}
+.signal{display:flex;gap:2px;align-items:end;height:15px}
+.signal i{display:block;width:3px;background:var(--green);border-radius:2px}
+.signal i:nth-child(1){height:5px}.signal i:nth-child(2){height:8px}.signal i:nth-child(3){height:11px}.signal i:nth-child(4){height:14px}
+.signal.weak i{background:var(--amber)}.signal.bad i{background:var(--red)}
+
+.tag{display:inline-flex;align-items:center;gap:5px;border:1px solid #2d3b49;border-radius:5px;padding:3px 7px;font-size:10px;color:#a8bbcf;background:#101823}
+.tag.green{color:var(--green);border-color:#24533f;background:#0c1b16}
+.tag.amber{color:var(--amber);border-color:#62491f;background:#1d170c}
+.tag.red{color:#ff7a8d;border-color:#672337;background:#220d14}
+.tag.blue{color:#82b8ff;border-color:#294c77;background:#0d1726}
+
+/* Risk Ring */
+.risk-layout{display:flex;align-items:center;gap:18px;padding:15px}
+.risk-ring{width:112px;height:112px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(var(--red) 0 35%,var(--amber) 35% 65%,var(--green) 65% 100%)}
+.risk-ring:before{content:"";position:absolute;inset:8px;border-radius:50%;background:#0b1119;border:1px solid #24313f}
+.risk-center{position:relative;text-align:center;font-size:10px;color:var(--muted)}.risk-center strong{display:block;font-size:18px;color:var(--text)}
+.risk-copy .small{font-size:10px;color:var(--muted)}.risk-copy h3{font-size:17px;margin:4px 0;color:var(--text)}.risk-copy p{font-size:11px;color:#b7c5d5;margin:0 0 11px}
+.legend{display:grid;gap:9px;padding:0 15px 15px}.legend-row{display:flex;align-items:center;gap:8px;font-size:11px;color:#aebdd0}.legend-row b{margin-left:auto;color:#dce7f4}
+
+/* Log List */
+.log-list{display:grid;gap:12px;max-height:260px;overflow-y:auto}
+.log-item{display:grid;grid-template-columns:52px 8px 1fr;gap:9px;align-items:start;font-size:11px;color:#aabbd0}
+.log-time{color:#71839a;font-variant-numeric:tabular-nums}.log-item .dot{margin-top:5px}.log-item p{margin:0}.log-item small{display:block;color:#6f8299;margin-top:3px}
+
+/* Quick Actions */
+.quick-actions{display:grid;gap:8px}
+.quick-actions button{width:100%;text-align:left;display:flex;align-items:center;gap:10px;padding:10px 11px}
+.quick-actions button span:last-child{margin-left:auto;color:#74869a}
+
+/* Findings */
+.finding{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid #202a36}
+.finding:last-child{border-bottom:0;padding-bottom:0}
+.finding-icon{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:#281019;color:var(--red);border:1px solid #5a2031;flex-shrink:0}
+.finding-icon.amber{color:var(--amber);background:#21180b;border-color:#58411c}
+.finding-icon.blue{color:var(--blue);background:#0c1828;border-color:#233e62}
+.finding-main{min-width:0;flex:1}.finding-main strong{font-size:12px;display:block}.finding-main p{margin:3px 0 0;color:#75889f;font-size:11px;overflow-wrap:anywhere}
+
+/* Chart */
+.chart{height:158px;position:relative;padding:8px 0 0 34px}
+.chart-grid{position:absolute;inset:12px 0 22px 34px;background:repeating-linear-gradient(to bottom,transparent 0 calc(25% - 1px),#24303c calc(25% - 1px) 25%),repeating-linear-gradient(to right,transparent 0 calc(16.66% - 1px),#1b2632 calc(16.66% - 1px) 16.66%)}
+.chart svg{position:absolute;inset:12px 0 22px 34px;width:calc(100% - 34px);height:calc(100% - 34px);overflow:visible}
+.chart-labels{position:absolute;left:0;top:10px;bottom:21px;display:flex;flex-direction:column;justify-content:space-between;font-size:9px;color:#71839a}
+.chart-times{position:absolute;bottom:0;left:34px;right:0;display:flex;justify-content:space-between;font-size:9px;color:#71839a}
+
+.progress-line{height:7px;background:#1b2733;border-radius:20px;overflow:hidden;margin:12px 0 7px}
+.progress-line i{height:100%;width:0;display:block;background:linear-gradient(90deg,#a80f2a,var(--red));border-radius:20px;transition:width .5s;box-shadow:0 0 12px #ff304f60}
+.progress-meta{display:flex;justify-content:space-between;font-size:10px;color:#91a2b6}
+
+.map-art{height:160px;background:radial-gradient(ellipse at 50% 50%,#10202a,#080d13 70%);position:relative;overflow:hidden}
+.map-art svg{width:100%;height:100%;opacity:.75}
+.map-scan{position:absolute;inset:0;background:linear-gradient(110deg,transparent 40%,#ff304f10 50%,transparent 60%);animation:scanSweep 5s linear infinite}
+.map-note{text-align:center;color:#71869c;font-size:10px;padding:9px 12px 14px}.map-note b{color:var(--red)}
+
+/* Filter Bars */
+.filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.search-input{background:#080d13;border:1px solid #344253;border-radius:8px;padding:8px 12px;color:var(--text);font-size:11px;min-width:240px;outline:none}
+.search-input:focus{border-color:var(--red)}
+.select-input{background:#080d13;border:1px solid #344253;border-radius:8px;padding:8px 12px;color:var(--text);font-size:11px;outline:none}
+.select-input:focus{border-color:var(--red)}
+
+/* Footer */
+.footer{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #26303c;padding:14px 22px;color:#61758b;font-size:10px;background:#06090e}
+.footer-brand{color:var(--red);letter-spacing:1px;font-weight:800}
+
+/* Toast */
+.toast-wrap{position:fixed;right:18px;bottom:18px;z-index:100;display:grid;gap:8px}
+.toast{width:min(350px,calc(100vw - 36px));border:1px solid #6a2839;background:#11151d;color:#e6eef8;padding:12px 14px;border-radius:10px;box-shadow:0 10px 35px #0008;animation:slideIn .25s ease}
+.toast strong{display:block;color:var(--red);font-size:12px;margin-bottom:3px}.toast span{font-size:11px;color:#9eafc3}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:#000b;z-index:80;display:none;place-items:center;padding:18px}
+.modal-backdrop.open{display:grid}
+.modal{width:min(640px,100%);border:1px solid #713044;border-radius:14px;background:#0b1018;box-shadow:0 0 60px #ff304f15;overflow:hidden}
+.modal-head{padding:16px;border-bottom:1px solid #283341;display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0;font-size:15px}
+.modal-body{padding:17px;color:#b8c7d8;font-size:12px;max-height:75vh;overflow-y:auto}
+.modal-body p{margin-top:0}.modal-body label{display:block;color:#7e91a8;margin:12px 0 6px}
+.modal-body input,.modal-body select,.modal-body textarea{width:100%;padding:10px;border:1px solid #344253;background:#070c12;color:#e7effa;border-radius:7px;outline:none}
+.modal-body input:focus,.modal-body select:focus,.modal-body textarea:focus{border-color:var(--red)}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:0 17px 17px}
+
+/* Animations */
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:.2}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{50%{opacity:.25}}
+@keyframes scanSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Responsive */
+@media(max-width:1250px){.content-grid{grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr)}.right-stack{grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:900px){.layout{grid-template-columns:70px minmax(0,1fr)}.sidebar{padding:16px 8px}.nav{justify-content:center;padding:12px 6px}.nav .nav-text,.nav-label,.sidebar-bottom{display:none}.brand{min-width:auto}.brand-sub,.top-stats{display:none}.main{padding:17px 13px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.content-grid{grid-template-columns:minmax(0,1fr)}.right-stack{grid-column:auto;grid-template-columns:1fr}}
+@media(max-width:560px){.topbar{height:65px;padding:0 12px;gap:10px}.metrics{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Topbar -->
+<header class="topbar">
+ <div class="brand">
+  <div class="brand-mark">⌁</div>
+  <div><div class="brand-name">GHOSTSENTINEL <span>Ω</span></div><div class="brand-sub">WI-FI SECURITY &amp; PRIVACY AUDITING</div></div>
+ </div>
+ <div class="top-stats">
+  <div class="mini-stat"><div class="mini-label">Environment</div><div class="mini-value" id="topEnv">◈ System <span style="color:var(--muted);font-weight:400">/ Live</span></div></div>
+  <div class="mini-stat"><div class="mini-label">Backend Status</div><div class="mini-value"><span class="dot" style="color:var(--green)"></span> Live <span class="meter"><i></i></span></div></div>
+  <div class="connection"><span style="font-size:18px">⌁</span><span id="adapterText">Detecting wireless adapters…</span></div>
+ </div>
+ <div class="top-actions">
+  <button class="icon-btn" id="helpBtn" title="Help &amp; Documentation">?</button>
+  <button class="icon-btn" id="settingsBtn" title="System Settings">⚙</button>
+ </div>
+</header>
+
+<div class="layout">
+
+<!-- Sidebar Navigation -->
+<aside class="sidebar">
+ <div class="nav-label">Workspace</div>
+ <button class="nav active" data-page="Dashboard"><span class="ico">▦</span><span class="nav-text">Dashboard</span></button>
+ <button class="nav" data-page="Wi-Fi Discovery"><span class="ico">⌁</span><span class="nav-text">Wi-Fi Discovery</span></button>
+ <button class="nav" data-page="Security Audit"><span class="ico">⬡</span><span class="nav-text">Security Audit</span></button>
+ <button class="nav" data-page="Rogue AP Detection"><span class="ico">⚡</span><span class="nav-text">Rogue AP Detection</span></button>
+ <button class="nav" data-page="Security Lab"><span class="ico">🧪</span><span class="nav-text">Security Lab</span></button>
+ <button class="nav" data-page="Device Inventory"><span class="ico">▣</span><span class="nav-text">Device Inventory</span></button>
+ <button class="nav" data-page="Camera &amp; Privacy"><span class="ico">◉</span><span class="nav-text">Camera &amp; Privacy</span></button>
+ <button class="nav" data-page="Password Audit"><span class="ico">🔑</span><span class="nav-text">Password Audit</span></button>
+ <button class="nav" data-page="Scan History"><span class="ico">◷</span><span class="nav-text">Scan History</span></button>
+ <button class="nav" data-page="Findings &amp; Remediation"><span class="ico">⚑</span><span class="nav-text">Findings &amp; Remediation</span></button>
+ <button class="nav" data-page="Reports"><span class="ico">▤</span><span class="nav-text">Reports</span></button>
+ <div class="nav-label" style="margin-top:15px">System</div>
+ <button class="nav" data-page="Settings"><span class="ico">⚙</span><span class="nav-text">Settings</span></button>
+ <div class="sidebar-bottom">
+  <div class="radar"></div>
+  <div class="side-quote">No network is safe<br>until you <b>check it.</b></div>
+  <div class="side-version">GHOSTSENTINEL Ω · v0.1.0</div>
+ </div>
+</aside>
+
+<!-- Main Workspace -->
+<main class="main">
+
+ <div class="page-head">
+  <div>
+   <h1 id="pageTitle">Dashboard <span>Console</span></h1>
+   <p id="pageSubtitle">Real-time Wi-Fi spectrum, security auditing and privacy inspection console.</p>
+  </div>
+  <div class="head-right">
+   <span class="status-pill live-pill"><i class="dot blink"></i> LIVE SCAN ENGINE ACTIVE</span>
+   <button class="btn" id="globalScanBtn">↻ Start Wi-Fi Scan</button>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 1. DASHBOARD VIEW                                                        -->
+ <!-- ======================================================================== -->
+ <div id="view-dashboard" class="page-view" style="display:block">
+  <div class="banner"><span>🛡</span><div><b>Real-Time Defense Mode:</b> Live observation from connected wireless adapters &amp; network interfaces. Zero simulated results. Zero credentials stored.</div></div>
+
+  <section class="metrics">
+   <article class="metric"><div class="metric-top"><span>Networks / APs in range</span><span class="metric-icon">⌁</span></div><div class="metric-value" id="dashNetCount">0</div><div class="metric-foot"><span class="green" id="dashNetSub">Live spectrum scan</span></div></article>
+   <article class="metric"><div class="metric-top"><span>Devices in inventory</span><span class="metric-icon">⬡</span></div><div class="metric-value" id="dashDevCount">0</div><div class="metric-foot" id="dashDevSub">Authorized private scope</div></article>
+   <article class="metric"><div class="metric-top"><span>Camera streaming indicators</span><span class="metric-icon">◉</span></div><div class="metric-value" id="dashCamCount">0</div><div class="metric-foot" id="dashCamSub">Port 554/8554 RTSP checks</div></article>
+   <article class="metric"><div class="metric-top"><span>Security findings</span><span class="metric-icon">⚠️</span></div><div class="metric-value" id="dashFindCount">0</div><div class="metric-foot" id="dashFindSub">Active audit findings</div></article>
+  </section>
+
+  <section class="content-grid">
+   <div class="stack">
+    <section class="panel">
+     <div class="panel-head">
+      <span class="head-icon">⌁</span><h2>Live Spectrum Environment</h2>
+      <div class="right"><span class="tag green">ACTIVE SCAN</span><button class="btn" onclick="openNavPage('Wi-Fi Discovery')">View Full Spectrum ↗</button></div>
+     </div>
+     <div class="table-wrap">
+      <table>
+       <thead><tr><th>Network / SSID</th><th>BSSID</th><th>Channel</th><th>Signal</th><th>Security</th></tr></thead>
+       <tbody id="dashWifiRows">
+        <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">Loading spectrum data…</td></tr>
+       </tbody>
+      </table>
+     </div>
+    </section>
+
+    <section class="panel">
+     <div class="panel-head"><span class="head-icon">⚑</span><h2>Recent Findings &amp; Exposure</h2><div class="right"><button class="btn secondary" onclick="openNavPage('Findings &amp; Remediation')">View All ↗</button></div></div>
+     <div class="panel-body" id="dashFindingsList">
+      <div style="color:var(--muted);font-size:11px;padding:8px 0">Loading audit findings…</div>
+     </div>
+    </section>
+
+    <section class="panel">
+     <div class="panel-head"><span class="head-icon">⌁</span><h2>Signal &amp; Channel RF Activity</h2><div class="right"><span class="tag green">Live Spectrum</span></div></div>
+     <div class="panel-body">
+      <div class="chart">
+       <div class="chart-labels"><span>-30</span><span>-50</span><span>-70</span><span>-90</span><span>dBm</span></div>
+       <div class="chart-grid"></div>
+       <svg viewBox="0 0 600 130" preserveAspectRatio="none">
+        <defs><linearGradient id="gRed" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ff304f" stop-opacity=".3"/><stop offset="1" stop-color="#ff304f" stop-opacity="0"/></linearGradient></defs>
+        <path d="M0 93 L40 80 L80 65 L120 75 L160 50 L200 60 L240 45 L280 70 L320 55 L360 40 L400 50 L440 65 L480 35 L520 50 L560 45 L600 40 L600 130 L0 130Z" fill="url(#gRed)"/>
+        <path d="M0 93 L40 80 L80 65 L120 75 L160 50 L200 60 L240 45 L280 70 L320 55 L360 40 L400 50 L440 65 L480 35 L520 50 L560 45 L600 40" fill="none" stroke="#ff304f" stroke-width="2"/>
+        <path d="M0 110 L50 105 L100 115 L150 100 L200 108 L250 102 L300 112 L350 105 L400 110 L450 104 L500 108 L550 102 L600 105" fill="none" stroke="#4b9fff" stroke-width="1.5"/>
+       </svg>
+       <div class="chart-times"><span>Ch 1 (2.4G)</span><span>Ch 6 (2.4G)</span><span>Ch 11 (2.4G)</span><span>Ch 36 (5G)</span><span>Ch 149 (5G)</span></div>
+      </div>
+     </div>
+    </section>
+   </div>
+
+   <div class="stack">
+    <section class="panel">
+     <div class="panel-head"><span class="head-icon">◉</span><h2>Security Posture Overview</h2></div>
+     <div class="risk-layout">
+      <div class="risk-ring" id="dashRiskRing"><div class="risk-center">RISK<strong id="dashRiskScore">LOW</strong></div></div>
+      <div class="risk-copy">
+       <div class="small">Posture calculation</div>
+       <h3 style="font-size:16px" id="dashRiskTitle">Active Audit</h3>
+       <p id="dashRiskDesc">Real-time analysis of observable encryption &amp; authentication standards.</p>
+       <button class="btn secondary" onclick="openNavPage('Security Audit')">Audit Details ↗</button>
+      </div>
+     </div>
+     <div class="legend">
+      <div class="legend-row"><span class="dot" style="color:var(--green)"></span> Safe / WPA3-SAE <b id="dashLegSafe">0</b></div>
+      <div class="legend-row"><span class="dot" style="color:var(--amber)"></span> WPA2-PSK (Review Passphrase) <b id="dashLegReview">0</b></div>
+      <div class="legend-row"><span class="dot" style="color:var(--red)"></span> Open / WEP (Critical Risks) <b id="dashLegRisks">0</b></div>
+     </div>
+    </section>
+
+    <section class="panel">
+     <div class="panel-head"><span class="head-icon">⌁</span><h2>Live Activity Log</h2><div class="right"><button class="btn ghost" id="dashClearLog">Clear</button></div></div>
+     <div class="panel-body"><div class="log-list" id="dashLogList"></div></div>
+    </section>
+
+    <section class="panel">
+     <div class="panel-head"><span class="head-icon">⚡</span><h2>Quick Launch</h2></div>
+     <div class="panel-body quick-actions">
+      <button class="btn" onclick="openNavPage('Wi-Fi Discovery')"><span>▶</span> Spectrum Discovery Console <span>↗</span></button>
+      <button class="btn secondary" onclick="openNavPage('Device Inventory')"><span>▣</span> Authorized Device Sweep <span>↗</span></button>
+      <button class="btn secondary" onclick="openNavPage('Password Audit')"><span>🔑</span> Password Strength Auditor <span>↗</span></button>
+      <button class="btn secondary" onclick="openNavPage('Reports')"><span>▤</span> Security Reports Manager <span>↗</span></button>
+     </div>
+    </section>
+   </div>
+
+   <div class="stack right-stack">
+    <section class="panel">
+     <div class="panel-head"><span class="head-icon">◈</span><h2>System Diagnostics</h2></div>
+     <div class="panel-body" style="display:grid;gap:12px">
+      <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:#90a2b8;font-size:11px">Operating System</span><span class="tag green" id="dashDiagOS">Detecting…</span></div>
+      <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:#90a2b8;font-size:11px">Scanner Backend</span><span class="tag green">FastAPI REST</span></div>
+      <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:#90a2b8;font-size:11px">Wireless Adapters</span><span class="tag green" id="dashDiagAdapters">Checking…</span></div>
+      <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:#90a2b8;font-size:11px">Nmap Scanner</span><span class="tag blue" id="dashDiagNmap">Checking…</span></div>
+      <button class="btn secondary" onclick="openNavPage('Settings')">Full Hardware Diagnostics ↗</button>
+     </div>
+    </section>
+    <section class="panel">
+     <div class="panel-head"><span class="head-icon">▤</span><h2>Scan Progress</h2></div>
+     <div class="panel-body">
+      <div class="progress-meta"><span id="dashProgressText">Idle</span><b id="dashProgressNum">100%</b></div>
+      <div class="progress-line"><i id="dashProgressBar" style="width:100%"></i></div>
+      <div style="font-size:10px;color:#74869a" id="dashProgressSub">Ready for operations</div>
+     </div>
+    </section>
+   </div>
+  </section>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 2. WI-FI DISCOVERY VIEW                                                  -->
+ <!-- ======================================================================== -->
+ <div id="view-wifidiscovery" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head">
+    <span class="head-icon">⌁</span><h2>Physical Wi-Fi Spectrum Discovery (Routers, Hotspots &amp; APs)</h2>
+    <div class="right">
+     <button class="btn" id="wifiViewScanBtn">↻ Trigger Real-Time Spectrum Scan</button>
+     <button class="btn ghost" id="wifiExportCsv">Export CSV</button>
+    </div>
+   </div>
+   <div class="panel-body">
+    <div class="filter-bar">
+     <input type="text" id="wifiSearch" class="search-input" placeholder="🔍 Search by SSID, BSSID, or Security…">
+     <select id="wifiBandFilter" class="select-input">
+      <option value="all">All Bands (2.4 GHz &amp; 5 GHz)</option>
+      <option value="2.4">2.4 GHz Only</option>
+      <option value="5">5 GHz Only</option>
+     </select>
+     <select id="wifiSecFilter" class="select-input">
+      <option value="all">All Security Types</option>
+      <option value="open">Open (Unencrypted)</option>
+      <option value="wpa2">WPA2-Personal</option>
+      <option value="wpa3">WPA3-SAE</option>
+      <option value="wep">WEP (Legacy Broken)</option>
+     </select>
+     <select id="wifiSort" class="select-input">
+      <option value="signal">Sort: Strongest Signal First</option>
+      <option value="ssid">Sort: SSID (A to Z)</option>
+      <option value="channel">Sort: Channel (1 to 165)</option>
+     </select>
+    </div>
+
+    <!-- Live progress bar during scan -->
+    <div id="wifiProgressBox" style="display:none;margin-bottom:14px;background:#0d141e;padding:12px;border-radius:8px;border:1px solid #233e62">
+     <div class="progress-meta"><span id="wifiScanStatusText">Scanning wireless channels…</span><b id="wifiScanPct">0%</b></div>
+     <div class="progress-line"><i id="wifiScanBar"></i></div>
+    </div>
+
+    <div class="table-wrap">
+     <table>
+      <thead>
+       <tr>
+        <th>Network / SSID</th>
+        <th>BSSID (Physical MAC)</th>
+        <th>Channel &amp; Band</th>
+        <th>Signal Strength</th>
+        <th>Security / Cipher</th>
+        <th>Authentication</th>
+        <th>WPS State</th>
+        <th>Observed At</th>
+        <th>Actions</th>
+       </tr>
+      </thead>
+      <tbody id="wifiFullRows">
+       <tr><td colspan="9" style="text-align:center;padding:28px;color:var(--muted)">No networks loaded. Click 'Trigger Real-Time Spectrum Scan' above.</td></tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 3. SECURITY AUDIT VIEW                                                   -->
+ <!-- ======================================================================== -->
+ <div id="view-securityaudit" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head">
+    <span class="head-icon">⬡</span><h2>Evidence-Based Wi-Fi Security Audit</h2>
+    <div class="right">
+     <label style="font-size:11px;color:var(--muted);margin-right:6px">Select Scan Session:</label>
+     <select id="auditScanSelect" class="select-input"></select>
+    </div>
+   </div>
+   <div class="panel-body">
+    <div class="banner">
+     <span>ℹ</span>
+     <div><b>Deterministic Audit Rules:</b> Every finding is derived strictly from observable 802.11 beacon frames and telemetry. Checks requiring unavailable data (e.g. WPS PIN without monitor mode) are honestly labelled as <i>Information Unavailable / Not Tested</i>.</div>
+    </div>
+    <div id="auditFindingsContainer" style="display:grid;gap:12px">
+     <div style="text-align:center;padding:30px;color:var(--muted)">Loading audit findings…</div>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 3B. ROGUE AP & EVIL TWIN DETECTION VIEW                                   -->
+ <!-- ======================================================================== -->
+ <div id="view-rogueapdetection" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head">
+    <span class="head-icon">⚡</span><h2>Trusted Wireless Baseline &amp; Rogue AP / Evil Twin Detection</h2>
+    <div class="right">
+     <button class="btn" id="runRogueAuditBtn">⚡ Run Rogue AP Audit</button>
+    </div>
+   </div>
+   <div class="panel-body">
+    <div class="banner">
+     <span>🛡️</span>
+     <div><b>Rogue AP &amp; Evil Twin Defense Engine:</b> Compares active over-the-air broadcasts against authorized hardware MAC/BSSIDs, security ciphers, and operating channels. Flags uncatalogued APs broadcasting trusted SSIDs and malicious security protocol downgrades.</div>
+    </div>
+
+    <!-- Telemetry Cards -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+     <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Baselines Configured</div>
+      <div style="font-size:24px;font-weight:800;color:var(--cyan);margin-top:4px" id="rogueStatBaselines">0</div>
+     </div>
+     <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Rogue APs / Evil Twins</div>
+      <div style="font-size:24px;font-weight:800;color:var(--red);margin-top:4px" id="rogueStatRogues">0</div>
+     </div>
+     <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Security Downgrades</div>
+      <div style="font-size:24px;font-weight:800;color:var(--amber);margin-top:4px" id="rogueStatDowngrades">0</div>
+     </div>
+     <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Channel Anomalies</div>
+      <div style="font-size:24px;font-weight:800;color:var(--blue);margin-top:4px" id="rogueStatChannels">0</div>
+     </div>
+    </div>
+
+    <!-- Main Grid: Baseline Manager & Active Baselines -->
+    <div style="display:grid;grid-template-columns:1.1fr 1.9fr;gap:16px">
+     <!-- Add/Edit Baseline Form -->
+     <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:16px">
+      <h3 style="font-size:13px;color:var(--red);margin:0 0 12px">Register Trusted Baseline</h3>
+      <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Select Discovered Network (or type below):</label>
+      <select id="baseTargetSelect" class="select-input" style="width:100%;margin-bottom:10px">
+       <option value="">-- Choose from visible airwaves --</option>
+      </select>
+      <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Target Network SSID:</label>
+      <input type="text" id="baseSsidInput" class="search-input" style="width:100%;margin-bottom:10px" placeholder="e.g. Corporate-Office">
+
+      <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Authorized Hardware BSSIDs (comma-separated):</label>
+      <input type="text" id="baseBssidsInput" class="search-input" style="width:100%;margin-bottom:10px" placeholder="e.g. 00:11:22:33:44:55, AA:BB:CC:DD:EE:FF">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+       <div>
+        <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Expected Security:</label>
+        <select id="baseSecInput" class="select-input" style="width:100%">
+         <option value="WPA3">WPA3-SAE (Strongest)</option>
+         <option value="WPA2" selected>WPA2-CCMP / PSK</option>
+         <option value="WPA2-Enterprise">WPA2-Enterprise</option>
+        </select>
+       </div>
+       <div>
+        <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Allowed Channels:</label>
+        <input type="text" id="baseChannelsInput" class="search-input" style="width:100%" placeholder="e.g. 1, 6, 11, 36">
+       </div>
+      </div>
+
+      <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Baseline Notes / Hardware Model:</label>
+      <input type="text" id="baseNotesInput" class="search-input" style="width:100%;margin-bottom:14px" placeholder="e.g. Primary office AP, Cisco Catalyst 9115">
+
+      <div style="display:flex;gap:8px">
+       <button class="btn" id="saveBaselineBtn" style="flex:1">Save Trusted Baseline</button>
+       <button class="btn secondary" id="clearBaselineFormBtn">Clear</button>
+      </div>
+     </div>
+
+     <!-- Active Baselines Table -->
+     <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+       <h3 style="font-size:13px;color:var(--cyan);margin:0">Active Trusted Baselines</h3>
+       <button class="btn ghost" id="refreshBaselinesBtn" style="padding:4px 9px;font-size:10px">↻ Refresh</button>
+      </div>
+      <div class="table-wrap" style="max-height:260px;overflow-y:auto">
+       <table>
+        <thead>
+         <tr>
+          <th>SSID</th>
+          <th>Authorized BSSIDs</th>
+          <th>Expected Security</th>
+          <th>Channels</th>
+          <th>Action</th>
+         </tr>
+        </thead>
+        <tbody id="baselineTableRows">
+         <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">No baselines configured. Add your primary router above.</td></tr>
+        </tbody>
+       </table>
+      </div>
+     </div>
+    </div>
+
+    <!-- Rogue Alerts Feed -->
+    <div style="margin-top:16px">
+     <h3 style="font-size:13px;color:var(--red);margin:0 0 10px">Detected Rogue AP &amp; Evil Twin Alerts</h3>
+     <div id="rogueAlertsContainer" style="display:grid;gap:12px">
+      <div style="text-align:center;padding:24px;color:var(--muted);background:#0b1119;border:1px dashed #233446;border-radius:10px">
+       No rogue APs currently detected. Click <b>"Run Rogue AP Audit"</b> to verify live airwaves against baselines.
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 3C. CONTROLLED WIRELESS SECURITY LAB VIEW                                -->
+ <!-- ======================================================================== -->
+ <div id="view-securitylab" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head">
+    <span class="head-icon">🧪</span><h2>Controlled Wireless Security Lab — Target Router Assessment</h2>
+   </div>
+   <div class="panel-body">
+    <!-- Mandatory Authorization Banner -->
+    <div class="banner warn" style="border-left:4px solid var(--amber)">
+     <span>⚠️</span>
+     <div>
+      <b>MANDATORY PERMISSION CONFIRMATION:</b> Controlled Security Lab mode conducts active non-destructive technical configuration tests against specific wireless access points and gateway management ports. You must have explicit written permission or legal ownership of the target device.
+     </div>
+    </div>
+
+    <!-- Lab Configuration Grid -->
+    <div style="display:grid;grid-template-columns:1.2fr 1.8fr;gap:16px;margin-bottom:16px">
+     <!-- Target Setup Box -->
+     <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:16px">
+      <h3 style="font-size:13px;color:var(--red);margin:0 0 12px">Target Router Parameters</h3>
+
+      <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Select Discovered Network (or type below):</label>
+      <select id="labTargetSelect" class="select-input" style="width:100%;margin-bottom:10px">
+       <option value="">-- Choose from visible airwaves --</option>
+      </select>
+
+      <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Target SSID:</label>
+      <input type="text" id="labSsidInput" class="search-input" style="width:100%;margin-bottom:10px" placeholder="e.g. MyLabRouter">
+
+      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:10px;margin-bottom:10px">
+       <div>
+        <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Target BSSID (MAC):</label>
+        <input type="text" id="labBssidInput" class="search-input" style="width:100%" placeholder="e.g. 00:11:22:33:44:55">
+       </div>
+       <div>
+        <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Security Cipher:</label>
+        <select id="labSecInput" class="select-input" style="width:100%">
+         <option value="WPA2-PSK">WPA2-PSK</option>
+         <option value="WPA3-SAE">WPA3-SAE</option>
+         <option value="WPA-TKIP">WPA-TKIP</option>
+         <option value="WEP">WEP</option>
+         <option value="OPEN">Open (None)</option>
+        </select>
+       </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-bottom:12px">
+       <div>
+        <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Channel:</label>
+        <input type="number" id="labChannelInput" class="search-input" style="width:100%" placeholder="e.g. 6">
+       </div>
+       <div>
+        <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:4px">Gateway IP (RFC-1918):</label>
+        <input type="text" id="labGatewayIpInput" class="search-input" style="width:100%" placeholder="e.g. 192.168.1.1">
+       </div>
+      </div>
+
+      <!-- Authorization confirmation checkbox -->
+      <div style="background:#130b0e;border:1px solid #571c26;border-radius:8px;padding:10px;margin-bottom:14px">
+       <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#f0cfcf;cursor:pointer">
+        <input type="checkbox" id="labAuthCheckbox" style="margin-top:3px">
+        <span><b>Authorized Testing Confirmation:</b> I confirm that I own this target network or possess formal written authorization to conduct security auditing.</span>
+       </label>
+      </div>
+
+      <button class="btn" id="executeLabBtn" style="width:100%;justify-content:center" disabled>Execute Controlled Lab Assessment</button>
+     </div>
+
+     <!-- Lab Security Summary Gauge -->
+     <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:16px;display:flex;flex-direction:column">
+      <h3 style="font-size:13px;color:var(--cyan);margin:0 0 12px">Lab Security Posture &amp; Score</h3>
+      <div style="display:flex;align-items:center;gap:20px;padding:15px;background:#060a0f;border:1px solid #1a2533;border-radius:10px;margin-bottom:14px">
+       <div id="labScoreRing" style="width:90px;height:90px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) 0 85%, var(--line) 85% 100%);position:relative;flex-shrink:0">
+        <div style="width:70px;height:70px;border-radius:50%;background:#0b1018;display:grid;place-items:center">
+         <span id="labScoreVal" style="font-size:22px;font-weight:900;color:var(--green)">--</span>
+        </div>
+       </div>
+       <div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Security Posture Status</div>
+        <div id="labPostureLabel" style="font-size:18px;font-weight:800;color:var(--text);margin:2px 0 4px">READY FOR TEST</div>
+        <div id="labPostureDetail" style="font-size:11px;color:#91a3b8">Select an authorized target and run assessment to evaluate 802.11w PMF, ciphers, and admin surfaces.</div>
+       </div>
+      </div>
+
+      <h4 style="font-size:11px;color:var(--muted);margin:0 0 8px;text-transform:uppercase">Automated Check Status</h4>
+      <div id="labChecksList" style="display:grid;gap:6px;flex:1;overflow-y:auto;max-height:160px">
+       <div style="font-size:11px;color:#7e91a8;padding:8px;background:#080d13;border-radius:6px">1. Encryption &amp; Protocol Suite: Pending test</div>
+       <div style="font-size:11px;color:#7e91a8;padding:8px;background:#080d13;border-radius:6px">2. 802.11w Protected Management Frames: Pending test</div>
+       <div style="font-size:11px;color:#7e91a8;padding:8px;background:#080d13;border-radius:6px">3. Wi-Fi Protected Setup (WPS) Analysis: Pending test</div>
+       <div style="font-size:11px;color:#7e91a8;padding:8px;background:#080d13;border-radius:6px">4. Gateway Administration Surface: Pending test</div>
+      </div>
+     </div>
+    </div>
+
+    <!-- Lab Findings Section -->
+    <div>
+     <h3 style="font-size:13px;color:var(--red);margin:0 0 10px">Lab Assessment Findings &amp; Technical Evidence</h3>
+     <div id="labFindingsContainer" style="display:grid;gap:12px">
+      <div style="text-align:center;padding:24px;color:var(--muted);background:#0b1119;border:1px dashed #233446;border-radius:10px">
+       No findings yet. Run a controlled assessment on an authorized target network above.
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 4. DEVICE INVENTORY VIEW                                                 -->
+ <!-- ======================================================================== -->
+ <div id="view-deviceinventory" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head"><span class="head-icon">▣</span><h2>Authorized Local Network Device Discovery</h2></div>
+   <div class="panel-body">
+    <div class="banner warn">
+     <span>⚠️</span>
+     <div><b>Authorization Mandatory:</b> Scan only private networks you own or have explicit written authorization to test. Public IP ranges are blocked by scope validation.</div>
+    </div>
+
+    <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:16px;margin-bottom:16px;display:grid;grid-template-columns:1.5fr 1fr 1fr auto;gap:12px;align-items:end">
+     <div>
+      <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:6px">Private IPv4 Network Range (CIDR):</label>
+      <input type="text" id="devRangeField" class="search-input" style="width:100%" value="10.7.2.0/24" placeholder="e.g. 192.168.1.0/24, 10.7.2.0/24">
+     </div>
+     <div>
+      <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:6px">Network Interface:</label>
+      <input type="text" id="devIfaceField" class="search-input" style="width:100%" value="Wi-Fi" placeholder="e.g. Wi-Fi, eth0, wlan0">
+     </div>
+     <div style="display:flex;align-items:center;gap:8px;padding-bottom:8px">
+      <input type="checkbox" id="devAuthConfirm" checked style="width:auto;cursor:pointer">
+      <label for="devAuthConfirm" style="font-size:11px;color:#dce8f6;cursor:pointer">Authorized Scope</label>
+     </div>
+     <div>
+      <button class="btn" id="startDevScanBtn">🔍 Start Device Sweep</button>
+     </div>
+    </div>
+
+    <div id="devScanProgressBox" style="display:none;margin-bottom:14px;background:#0d141e;padding:12px;border-radius:8px;border:1px solid #233e62">
+     <div class="progress-meta"><span id="devScanStatusText">Ping sweeping network range…</span><b id="devScanPct">0%</b></div>
+     <div class="progress-line"><i id="devScanBar"></i></div>
+    </div>
+
+    <div class="table-wrap">
+     <table>
+      <thead>
+       <tr>
+        <th>IP Address</th>
+        <th>MAC Address</th>
+        <th>Resolved Hostname</th>
+        <th>Open Ports</th>
+        <th>Services Identified</th>
+        <th>Camera Indicator</th>
+        <th>Discovered At</th>
+       </tr>
+      </thead>
+      <tbody id="devFullRows">
+       <tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted)">No devices scanned yet. Enter your private CIDR and click 'Start Device Sweep'.</td></tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 5. CAMERA & PRIVACY VIEW                                                 -->
+ <!-- ======================================================================== -->
+ <div id="view-cameraprivacy" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head"><span class="head-icon">◉</span><h2>Camera &amp; Privacy Inspection Console</h2></div>
+   <div class="panel-body">
+    <div class="banner warn">
+     <span>⚠️</span>
+     <div><b>Heuristic Indicator Limitations:</b> Network scanning detects IP cameras based on open streaming services (RTSP port 554/8554, ONVIF, DVR ports). <b>Offline, non-networked, battery-powered, or isolated spy cameras CANNOT be detected over IP.</b> Physical inspection remains mandatory.</div>
+    </div>
+
+    <h3 style="font-size:14px;color:var(--red);margin:16px 0 10px">Potential IP Camera Streaming Services on Local Network</h3>
+    <div id="cameraDevicesContainer" style="display:grid;gap:10px;margin-bottom:20px">
+     <div style="background:#0d141e;border:1px solid #27303d;padding:16px;border-radius:8px;color:var(--muted);font-size:11px">
+      No IP camera indicators detected in recent device scans. Run a <b>Device Sweep</b> on your subnet to discover open RTSP / DVR streaming ports.
+     </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+     <div class="panel" style="margin:0">
+      <div class="panel-head"><span class="head-icon">📋</span><h2>Physical Inspection Checklist</h2></div>
+      <div class="panel-body" style="font-size:11px;color:#c4d1e0;line-height:2" id="physicalChecklist">
+       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" style="width:auto"> Inspect air condition &amp; ceiling vents</label>
+       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" style="width:auto"> Check smoke detectors for lens reflections</label>
+       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" style="width:auto"> Examine digital clocks, mirrors, and picture frames</label>
+       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" style="width:auto"> Inspect exposed power adapters and outlet faceplates</label>
+       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" style="width:auto"> Check behind and below television / router hubs</label>
+       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" style="width:auto"> Test suspicious pinholes with flashlight reflection</label>
+      </div>
+     </div>
+
+     <div class="panel" style="margin:0">
+      <div class="panel-head"><span class="head-icon">✍</span><h2>Physical Inspection Notes (Local Storage Only)</h2></div>
+      <div class="panel-body">
+       <textarea id="camNotesField" rows="7" style="width:100%;background:#080d13;border:1px solid #344253;border-radius:8px;padding:10px;color:var(--text);font-size:11px;outline:none;resize:vertical" placeholder="Record physical inspection observations here. Notes are stored exclusively in your browser localStorage and are never sent to external servers."></textarea>
+       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <span id="camNotesSaveStatus" style="font-size:11px;color:var(--green)"></span>
+        <button class="btn" id="saveCamNotesBtn">Save Notes</button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 6. PASSWORD AUDIT VIEW                                                   -->
+ <!-- ======================================================================== -->
+ <div id="view-passwordaudit" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head"><span class="head-icon">🔑</span><h2>Authorized Password Strength &amp; Entropy Auditor</h2></div>
+   <div class="panel-body">
+    <div class="banner">
+     <span>🔒</span>
+     <div><b>Zero-Retention Analysis:</b> Evaluates password entropy locally using <code>zxcvbn</code>. Passwords are <b>immediately overwritten in memory and NEVER logged, stored in the database, or transmitted over the wire</b>.</div>
+    </div>
+
+    <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:18px;max-width:680px;margin-bottom:20px">
+     <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:6px">Password to Assess:</label>
+     <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input type="password" id="pwAuditInput" class="search-input" style="flex:1" placeholder="Enter password to assess entropy…">
+      <button class="btn secondary" id="pwToggleBtn" type="button">👁 Show</button>
+     </div>
+     <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:6px">Audit Label (Optional reference):</label>
+     <input type="text" id="pwAuditLabel" class="search-input" style="width:100%;margin-bottom:14px" value="Wi-Fi_WPA2_Passphrase" placeholder="e.g. Router-Admin-Pass">
+     <div style="display:flex;gap:10px">
+      <button class="btn" id="runPwAuditBtn">Assess Strength Locally</button>
+      <button class="btn secondary" id="genStrongPwBtn">Generate High-Entropy Key</button>
+     </div>
+    </div>
+
+    <div id="pwAuditResultBox" style="display:none;background:#0d141e;border:1px solid #27303d;border-radius:10px;padding:18px;max-width:680px">
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-size:16px;font-weight:bold" id="pwResLabel">Strong (4/4)</span>
+      <span class="tag green" id="pwResScore">Score: 4/4</span>
+     </div>
+     <div class="progress-line" style="margin:8px 0 14px"><i id="pwResBar" style="width:100%;background:var(--green)"></i></div>
+     <div style="font-size:11px;color:#a8bbcf;line-height:1.8">
+      <div>Estimated Crack Time (Offline Slow Hash): <b id="pwResTime" style="color:var(--text)">centuries</b></div>
+      <div>Password Length: <b id="pwResLen" style="color:var(--text)">18</b> characters</div>
+      <div>Predictable Wi-Fi Pattern Detected: <b id="pwResPattern" style="color:var(--green)">No</b></div>
+      <div id="pwResWarning" style="color:var(--amber);margin-top:6px"></div>
+     </div>
+     <div id="pwResSuggestions" style="margin-top:12px;font-size:11px;color:#75889f"></div>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 7. SCAN HISTORY VIEW                                                     -->
+ <!-- ======================================================================== -->
+ <div id="view-scanhistory" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head">
+    <span class="head-icon">◷</span><h2>Persistent Scan Session History</h2>
+    <div class="right"><button class="btn secondary" id="refreshHistBtn">↻ Refresh History</button></div>
+   </div>
+   <div class="panel-body">
+    <div class="table-wrap">
+     <table>
+      <thead>
+       <tr>
+        <th>Scan Session ID</th>
+        <th>Module / Scan Type</th>
+        <th>Status</th>
+        <th>Authorized Scope</th>
+        <th>Started At</th>
+        <th>Completed At</th>
+        <th>Action</th>
+       </tr>
+      </thead>
+      <tbody id="histFullRows">
+       <tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted)">Loading scan sessions from SQLite database…</td></tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 8. FINDINGS & REMEDIATION VIEW                                           -->
+ <!-- ======================================================================== -->
+ <div id="view-findingsremediation" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head">
+    <span class="head-icon">⚑</span><h2>Comprehensive Findings &amp; Hardening Guidance</h2>
+    <div class="right">
+     <select id="findSevFilter" class="select-input">
+      <option value="all">All Severities</option>
+      <option value="critical">Critical</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+      <option value="info">Informational</option>
+     </select>
+     <select id="findStatusFilter" class="select-input">
+      <option value="all">All Statuses</option>
+      <option value="confirmed">Confirmed Finding</option>
+      <option value="potential">Potential Finding</option>
+     </select>
+    </div>
+   </div>
+   <div class="panel-body">
+    <div id="findingsFullContainer" style="display:grid;gap:12px">
+     <div style="text-align:center;padding:28px;color:var(--muted)">Loading findings repository…</div>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 9. REPORTS VIEW                                                          -->
+ <!-- ======================================================================== -->
+ <div id="view-reports" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head"><span class="head-icon">▤</span><h2>Audit Evidence Report Generation &amp; Export</h2></div>
+   <div class="panel-body">
+    <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:16px;margin-bottom:20px;max-width:680px">
+     <h3 style="font-size:13px;color:var(--text);margin:0 0 10px">Generate Certified Evidence Report</h3>
+     <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:6px">Select Scan Session:</label>
+     <select id="reportGenScanSelect" class="select-input" style="width:100%;margin-bottom:12px"></select>
+     <label style="font-size:11px;color:#7e91a8;display:block;margin-bottom:6px">Export Format:</label>
+     <select id="reportGenFormat" class="select-input" style="width:100%;margin-bottom:16px">
+      <option value="html">Interactive HTML Report (Dark Theme)</option>
+      <option value="pdf">Printable Executive PDF Document (ReportLab)</option>
+      <option value="json">Structured Machine-Readable JSON Export</option>
+     </select>
+     <button class="btn" id="generateReportBtn">Generate &amp; Download Report</button>
+    </div>
+
+    <h3 style="font-size:13px;color:var(--red);margin:0 0 10px">Available Generated Reports</h3>
+    <div class="table-wrap">
+     <table>
+      <thead>
+       <tr>
+        <th>Filename</th>
+        <th>Format</th>
+        <th>Scan ID</th>
+        <th>File Size</th>
+        <th>Generated Timestamp</th>
+        <th>Action</th>
+       </tr>
+      </thead>
+      <tbody id="reportsListRows">
+       <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading generated report registry…</td></tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- ======================================================================== -->
+ <!-- 10. SETTINGS & SYSTEM VIEW                                               -->
+ <!-- ======================================================================== -->
+ <div id="view-settings" class="page-view" style="display:none">
+  <div class="panel">
+   <div class="panel-head">
+    <span class="head-icon">⚙</span><h2>System Diagnostics &amp; Operational Deployment</h2>
+    <div class="right"><button class="btn secondary" id="refreshSettingsBtn">↻ Refresh Hardware Telemetry</button></div>
+   </div>
+   <div class="panel-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+     <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:16px">
+      <h3 style="font-size:13px;color:var(--red);margin:0 0 12px">Hardware &amp; Adapter Status</h3>
+      <table style="width:100%;font-size:11px;min-width:auto">
+       <tr><td style="color:var(--muted);width:40%">Operating System:</td><td id="setOS">—</td></tr>
+       <tr><td style="color:var(--muted)">Python Engine:</td><td id="setPython">—</td></tr>
+       <tr><td style="color:var(--muted)">Wireless Interfaces:</td><td id="setAdapters">—</td></tr>
+       <tr><td style="color:var(--muted)">Nmap Security Scanner:</td><td id="setNmap">—</td></tr>
+       <tr><td style="color:var(--muted)">Monitor Mode State:</td><td id="setMonitor">—</td></tr>
+      </table>
+     </div>
+
+     <div style="background:#0b1119;border:1px solid #233446;border-radius:10px;padding:16px">
+      <h3 style="font-size:13px;color:var(--cyan);margin:0 0 12px">Deployment Security Rules</h3>
+      <table style="width:100%;font-size:11px;min-width:auto">
+       <tr><td style="color:var(--muted);width:40%">Platform Edition:</td><td><span class="tag green" id="setEdition">Community Edition</span></td></tr>
+       <tr><td style="color:var(--muted)">License Status:</td><td><span style="color:var(--cyan);font-weight:700" id="setLicenseActive">Active Operator Deployment</span></td></tr>
+       <tr><td style="color:var(--muted)">Host Binding:</td><td><code>127.0.0.1:8000</code> (Localhost Secure)</td></tr>
+       <tr><td style="color:var(--muted)">Database Mode:</td><td>SQLite WAL (Write-Ahead Logging)</td></tr>
+       <tr><td style="color:var(--muted)">LAN Access:</td><td>Disabled by default (Requires .env flag)</td></tr>
+       <tr><td style="color:var(--muted)">Swagger API Docs:</td><td><a href="/api/docs" target="_blank" style="color:var(--red);text-decoration:underline">/api/docs</a></td></tr>
+      </table>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+
+</main>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+ <span class="footer-brand">⌁ GHOSTSENTINEL Ω</span>
+ <span>Production-Grade Wi-Fi Security &amp; Privacy Auditing Platform</span>
+ <span id="footerStatus">Backend Connected · 127.0.0.1:8000 · v0.1.0</span>
+</footer>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Generic Modal -->
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+ <div class="modal">
+  <div class="modal-head">
+   <h3 id="modalTitle">Details</h3>
+   <button class="icon-btn" id="closeModal" aria-label="Close">×</button>
+  </div>
+  <div class="modal-body" id="modalBody"></div>
+  <div class="modal-foot">
+   <button class="btn secondary" id="modalCancel">Close</button>
+   <button class="btn" id="modalAction">OK</button>
+  </div>
+ </div>
+</div>
+
+<script>
+(() => {
+ 'use strict';
+ const $ = s => document.querySelector(s);
+ const $$ = s => [...document.querySelectorAll(s)];
+ const toastWrap = $('#toastWrap');
+
+ let activeScanId = null;
+ let scanPoller = null;
+ let liveNetworks = [];
+ let liveFindings = [];
+ let allScans = [];
+ let allDevices = [];
+
+ const pageTitles = {
+   'dashboard': ['Dashboard <span>Console</span>', 'Real-time Wi-Fi spectrum, security auditing and privacy inspection console.'],
+   'wifidiscovery': ['Wi-Fi <span>Discovery</span>', 'Live 802.11 spectrum analyzer: inspect all nearby routers, dual-band APs, and mobile hotspots.'],
+   'securityaudit': ['Security <span>Audit</span>', 'Deterministic vulnerability analysis: unencrypted networks, WPA2-PSK dictionary exposure, and WPA3 hygiene.'],
+   'rogueapdetection': ['Rogue AP &amp; <span>Evil Twin Detection</span>', 'Compare observed wireless access points against trusted hardware baselines to detect unauthorized APs, MITM honeypots, and cipher downgrades.'],
+   'securitylab': ['Controlled Wireless <span>Security Lab</span>', 'Authorized deep-dive security inspection on user-owned access points: 802.11w PMF, cipher suite integrity, WPS exposure, and router administration portals.'],
+   'deviceinventory': ['Device <span>Inventory</span>', 'Authorized local network host sweep: inspect IP, MAC, open ports, and services on approved private subnets.'],
+   'cameraprivacy': ['Camera &amp; <span>Privacy</span>', 'Inspect potential IP camera media streaming ports (RTSP 554/8554) with physical inspection logs.'],
+   'passwordaudit': ['Password <span>Audit</span>', 'Local offline passphrase entropy calculation using zxcvbn: zero storage, zero logging.'],
+   'scanhistory': ['Scan <span>History</span>', 'Audit log of all completed Wi-Fi and device discovery scans stored in local SQLite database.'],
+   'findingsremediation': ['Findings &amp; <span>Remediation</span>', 'Comprehensive repository of confirmed and potential vulnerabilities with remediation guidance.'],
+   'reports': ['Security <span>Reports</span>', 'Download executive and technical audit reports in certified HTML, JSON, and PDF formats.'],
+   'settings': ['System <span>Settings</span>', 'Hardware telemetry, wireless adapter capabilities, Nmap integration, and deployment configuration.']
+ };
+
+ function toast(title, message){
+   const el = document.createElement('div');
+   el.className = 'toast';
+   const strong = document.createElement('strong');
+   strong.textContent = title;
+   const span = document.createElement('span');
+   span.textContent = message;
+   el.append(strong, span);
+   toastWrap.append(el);
+   setTimeout(() => {
+     el.style.opacity = '0';
+     el.style.transform = 'translateY(8px)';
+     setTimeout(() => el.remove(), 250);
+   }, 4200);
+ }
+
+ function addLog(message, detail = 'System event', color = 'var(--blue)'){
+   const row = document.createElement('div');
+   row.className = 'log-item';
+   const time = document.createElement('span');
+   time.className = 'log-time';
+   time.textContent = new Date().toLocaleTimeString('en-GB');
+   const dot = document.createElement('i');
+   dot.className = 'dot';
+   dot.style.color = color;
+   const p = document.createElement('p');
+   p.textContent = message;
+   const small = document.createElement('small');
+   small.textContent = detail;
+   p.append(small);
+   row.append(time, dot, p);
+   const list = $('#dashLogList');
+   if (list) list.prepend(row);
+ }
+
+ function openModal(title, body, actionText = 'OK', action = () => {}){
+   $('#modalTitle').textContent = title;
+   $('#modalBody').replaceChildren();
+   if (typeof body === 'string') {
+     const p = document.createElement('p');
+     p.innerHTML = body;
+     $('#modalBody').append(p);
+   } else {
+     $('#modalBody').append(body);
+   }
+   $('#modalAction').textContent = actionText;
+   $('#modalAction').onclick = () => { action(); closeModal(); };
+   $('#modalBackdrop').classList.add('open');
+ }
+
+ function closeModal(){
+   $('#modalBackdrop').classList.remove('open');
+ }
+
+ $('#closeModal').onclick = closeModal;
+ $('#modalCancel').onclick = closeModal;
+ $('#modalBackdrop').addEventListener('click', e => { if (e.target === $('#modalBackdrop')) closeModal(); });
+ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+ async function api(path, options = {}) {
+   const res = await fetch(path, {
+     headers: { 'Content-Type': 'application/json', ...options.headers },
+     ...options
+   });
+   if (!res.ok) {
+     let err = `HTTP ${res.status}`;
+     try { const j = await res.json(); err = j.detail || j.error || err; } catch {}
+     throw new Error(err);
+   }
+   return res.json();
+ }
+
+ function getSignalClass(sig) {
+   if (sig === null || sig === undefined) return '';
+   if (sig >= -60) return '';
+   if (sig >= -75) return 'weak';
+   return 'bad';
+ }
+
+ function getSecurityTag(sec) {
+   const s = (sec || '').toUpperCase();
+   if (s.includes('WPA3')) return '<span class="tag green">WPA3-SAE</span>';
+   if (s.includes('WPA2')) return '<span class="tag blue">WPA2-CCMP</span>';
+   if (s.includes('WEP')) return '<span class="tag red">WEP (BROKEN)</span>';
+   if (s.includes('OPEN') || s === 'NONE') return '<span class="tag red">Open (Plaintext)</span>';
+   return `<span class="tag amber">${sec || 'Unknown'}</span>`;
+ }
+
+ // ── Clean Page Navigation Logic ──
+ window.openNavPage = function(pageName) {
+   const cleanKey = pageName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+   // Update sidebar active buttons
+   $$('.nav').forEach(n => {
+     const nKey = n.dataset.page.toLowerCase().replace(/[^a-z0-9]/g, '');
+     if (nKey === cleanKey) n.classList.add('active');
+     else n.classList.remove('active');
+   });
+
+   // Hide all views and show target view
+   $$('.page-view').forEach(v => {
+     v.style.display = 'none';
+     v.classList.remove('active');
+   });
+
+   const targetView = $(`#view-${cleanKey}`);
+   if (targetView) {
+     targetView.style.display = 'block';
+     targetView.classList.add('active');
+   }
+
+   const info = pageTitles[cleanKey] || [pageName + ' <span>Console</span>', 'Real-time security auditing and inspection.'];
+   $('#pageTitle').innerHTML = info[0];
+   $('#pageSubtitle').innerHTML = info[1];
+   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+   if (cleanKey === 'wifidiscovery') {
+     if (liveNetworks && liveNetworks.length > 0) {
+       renderWifiFullTable();
+     } else {
+       ensureLiveNetworks().then(() => renderWifiFullTable());
+     }
+   } else if (cleanKey === 'securityaudit') {
+     loadAuditView();
+   } else if (cleanKey === 'rogueapdetection') {
+     loadRogueView();
+   } else if (cleanKey === 'securitylab') {
+     loadLabView();
+   } else if (cleanKey === 'deviceinventory') {
+     loadDevicesView();
+   } else if (cleanKey === 'cameraprivacy') {
+     loadCameraView();
+   } else if (cleanKey === 'scanhistory') {
+     loadScanHistory();
+   } else if (cleanKey === 'findingsremediation') {
+     renderAllFindingsView();
+   } else if (cleanKey === 'reports') {
+     loadReportsView();
+   } else if (cleanKey === 'settings') {
+     loadHardwareInfo();
+   }
+ };
+
+ $$('.nav').forEach(btn => {
+   btn.addEventListener('click', () => {
+     openNavPage(btn.dataset.page);
+   });
+ });
+
+ // ── Wi-Fi Rendering ──
+ function renderNetworks(networks) {
+   liveNetworks = networks || [];
+   $('#dashNetCount').textContent = String(liveNetworks.length).padStart(2, '0');
+   $('#dashNetSub').textContent = `${liveNetworks.length} physical APs/radios in range`;
+
+   let safeCount = 0, reviewCount = 0, riskCount = 0;
+   liveNetworks.forEach(n => {
+     const s = (n.security || '').toLowerCase();
+     if (s.includes('open') || s.includes('wep')) riskCount++;
+     else if (s.includes('wpa3')) safeCount++;
+     else reviewCount++;
+   });
+
+   $('#dashLegSafe').textContent = safeCount;
+   $('#dashLegReview').textContent = reviewCount;
+   $('#dashLegRisks').textContent = riskCount;
+
+   const scoreEl = $('#dashRiskScore');
+   const titleEl = $('#dashRiskTitle');
+   const ringEl = $('#dashRiskRing');
+   if (riskCount > 0) {
+     scoreEl.textContent = 'HIGH';
+     scoreEl.style.color = 'var(--red)';
+     titleEl.textContent = `${riskCount} Unencrypted / Weak Networks`;
+     ringEl.style.background = 'conic-gradient(var(--red) 0 70%, var(--green) 70% 100%)';
+   } else {
+     scoreEl.textContent = 'LOW';
+     scoreEl.style.color = 'var(--green)';
+     titleEl.textContent = 'Standard Hygiene Observed';
+     ringEl.style.background = 'conic-gradient(var(--green) 0 85%, var(--amber) 85% 100%)';
+   }
+
+   // Dashboard Quick Table
+   const dashRows = $('#dashWifiRows');
+   if (!liveNetworks.length) {
+     dashRows.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">No Wi-Fi networks found.</td></tr>';
+   } else {
+     dashRows.innerHTML = liveNetworks.slice(0, 6).map(n => `
+       <tr>
+         <td><div class="network-name"><span class="wifi-icon ${(n.security||'').toLowerCase().includes('open') ? 'warn' : ''}">⌁</span><b>${n.ssid || '(Hidden SSID)'}</b></div></td>
+         <td style="font-family:monospace;color:var(--cyan)">${n.bssid || 'N/A'}</td>
+         <td>Ch ${n.channel || '—'}</td>
+         <td><div style="display:flex;gap:7px;align-items:center"><span class="signal ${getSignalClass(n.signal_dbm)}"><i></i><i></i><i></i><i></i></span>${n.signal_dbm !== null ? n.signal_dbm + ' dBm' : 'N/A'}</div></td>
+         <td>${getSecurityTag(n.security)}</td>
+       </tr>
+     `).join('');
+   }
+
+   renderWifiFullTable();
+   updateNetworkDropdowns();
+ }
+
+ function renderWifiFullTable() {
+   const tbody = $('#wifiFullRows');
+   if (!tbody) return;
+
+   const q = ($('#wifiSearch')?.value || '').toLowerCase();
+   const band = $('#wifiBandFilter')?.value || 'all';
+   const sec = $('#wifiSecFilter')?.value || 'all';
+   const sort = $('#wifiSort')?.value || 'signal';
+
+   let filtered = liveNetworks.filter(n => {
+     const sText = ((n.ssid || '') + ' ' + (n.bssid || '') + ' ' + (n.security || '')).toLowerCase();
+     if (q && !sText.includes(q)) return false;
+     if (band === '2.4' && n.channel && n.channel > 14) return false;
+     if (band === '5' && n.channel && n.channel <= 14) return false;
+     if (sec === 'open' && !(n.security || '').toLowerCase().includes('open')) return false;
+     if (sec === 'wpa2' && !(n.security || '').toLowerCase().includes('wpa2')) return false;
+     if (sec === 'wpa3' && !(n.security || '').toLowerCase().includes('wpa3')) return false;
+     if (sec === 'wep' && !(n.security || '').toLowerCase().includes('wep')) return false;
+     return true;
+   });
+
+   if (sort === 'signal') filtered.sort((a,b) => (b.signal_dbm || -120) - (a.signal_dbm || -120));
+   else if (sort === 'ssid') filtered.sort((a,b) => (a.ssid || '').localeCompare(b.ssid || ''));
+   else if (sort === 'channel') filtered.sort((a,b) => (a.channel || 0) - (b.channel || 0));
+
+   window.currentFilteredNetworks = filtered;
+   if (!filtered.length) {
+     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--muted)">No networks match current filters.</td></tr>';
+     return;
+   }
+
+   tbody.innerHTML = filtered.map((n, idx) => {
+     const isWarn = (n.security || '').toLowerCase().includes('open') || (n.security || '').toLowerCase().includes('wep');
+     const bandName = n.channel > 14 ? '5 GHz' : '2.4 GHz';
+     return `
+       <tr>
+         <td><div class="network-name"><span class="wifi-icon ${isWarn ? 'warn' : ''}">⌁</span><b>${n.ssid || '<i>(Hidden SSID)</i>'}</b></div></td>
+         <td style="font-family:monospace;color:var(--cyan)">${n.bssid || 'N/A'}</td>
+         <td>Ch ${n.channel || '—'} <span style="color:var(--muted);font-size:10px">(${bandName})</span></td>
+         <td><div style="display:flex;gap:7px;align-items:center"><span class="signal ${getSignalClass(n.signal_dbm)}"><i></i><i></i><i></i><i></i></span>${n.signal_dbm !== null ? n.signal_dbm + ' dBm' : 'N/A'}</div></td>
+         <td>${getSecurityTag(n.security)}</td>
+         <td style="color:#a8bbcf;font-size:10px">${n.authentication || 'N/A'}</td>
+         <td style="color:var(--muted);font-size:10px">${n.wps_detected || 'unknown'}</td>
+         <td style="color:var(--muted);font-size:10px">${n.observed_at ? new Date(n.observed_at).toLocaleTimeString() : 'Live'}</td>
+         <td style="white-space:nowrap">
+            <button class="btn secondary" style="padding:2px 6px;font-size:10px;margin-right:4px" onclick="addToBaselineIdx(${idx})" title="Register to Trusted Baseline">+ Base</button>
+            <button class="btn ghost" style="padding:2px 6px;font-size:10px" onclick="testInLabIdx(${idx})" title="Test in Controlled Lab">Lab</button>
+         </td>
+       </tr>
+     `;
+   }).join('');
+ }
+
+ $('#wifiSearch')?.addEventListener('input', renderWifiFullTable);
+ $('#wifiBandFilter')?.addEventListener('change', renderWifiFullTable);
+ $('#wifiSecFilter')?.addEventListener('change', renderWifiFullTable);
+ $('#wifiSort')?.addEventListener('change', renderWifiFullTable);
+
+ // ── Findings Rendering ──
+ function renderFindings(findings) {
+   liveFindings = findings || [];
+   $('#dashFindCount').textContent = String(liveFindings.length).padStart(2, '0');
+   $('#dashFindSub').textContent = `${liveFindings.length} findings from active audit`;
+
+   const dashList = $('#dashFindingsList');
+   if (!liveFindings.length) {
+     dashList.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px 0">No active security findings recorded yet.</div>';
+   } else {
+     dashList.innerHTML = liveFindings.slice(0, 4).map(f => {
+       const isCritical = f.severity === 'critical' || f.severity === 'high';
+       return `
+         <div class="finding">
+           <div class="finding-icon ${isCritical ? '' : 'amber'}">⚑</div>
+           <div class="finding-main">
+             <strong>${f.title}</strong>
+             <p>${f.description}</p>
+           </div>
+           <span class="tag ${isCritical ? 'red' : 'amber'}">${f.severity.toUpperCase()}</span>
+         </div>
+       `;
+     }).join('');
+   }
+
+   renderAuditViewFindings();
+   renderAllFindingsView();
+ }
+
+ function renderAuditViewFindings() {
+   const container = $('#auditFindingsContainer');
+   if (!container) return;
+   if (!liveFindings.length) {
+     container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">No findings for this scan session.</div>';
+     return;
+   }
+   container.innerHTML = liveFindings.map(f => {
+     const isCritical = f.severity === 'critical' || f.severity === 'high';
+     let refs = [];
+     try { refs = JSON.parse(f.references || '[]'); } catch {}
+     return `
+       <div style="background:#0d141e;border:1px solid ${isCritical ? '#642133' : '#344253'};border-radius:10px;padding:16px">
+         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+           <strong style="font-size:14px;color:var(--text)">${f.title}</strong>
+           <div><span class="tag ${isCritical ? 'red' : 'amber'}">${f.severity.toUpperCase()}</span> <span class="tag blue">${f.status.toUpperCase()}</span></div>
+         </div>
+         <p style="font-size:12px;color:#a8bbcf;margin:6px 0">${f.description}</p>
+         ${f.remediation ? `<div style="background:#0b1b16;border-left:3px solid var(--green);padding:8px 12px;border-radius:4px;margin-top:10px;font-size:11px;color:#c4e8d5"><b>Remediation Guidance:</b> ${f.remediation}</div>` : ''}
+         ${refs.length ? `<div style="margin-top:8px;font-size:10px;color:var(--muted)">References: ${refs.map(r => `<a href="${r}" target="_blank" style="color:var(--red);text-decoration:underline;margin-right:10px">${r}</a>`).join('')}</div>` : ''}
+       </div>
+     `;
+   }).join('');
+ }
+
+ function renderAllFindingsView() {
+   const container = $('#findingsFullContainer');
+   if (!container) return;
+   const sev = $('#findSevFilter')?.value || 'all';
+   const stat = $('#findStatusFilter')?.value || 'all';
+
+   let filtered = liveFindings.filter(f => {
+     if (sev !== 'all' && f.severity !== sev) return false;
+     if (stat !== 'all' && f.status !== stat) return false;
+     return true;
+   });
+
+   if (!filtered.length) {
+     container.innerHTML = '<div style="text-align:center;padding:28px;color:var(--muted)">No findings match filter.</div>';
+     return;
+   }
+
+   container.innerHTML = filtered.map(f => `
+     <div style="background:#0d141e;border:1px solid #27303d;border-radius:10px;padding:16px">
+       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+         <strong style="font-size:13px;color:var(--text)">${f.title}</strong>
+         <div><span class="tag ${f.severity === 'critical' ? 'red' : 'amber'}">${f.severity.toUpperCase()}</span> <span class="tag blue">${f.status}</span></div>
+       </div>
+       <p style="font-size:11px;color:#a8bbcf;margin:4px 0">${f.description}</p>
+       ${f.remediation ? `<div style="color:var(--green);font-size:11px;margin-top:8px">💡 <b>Fix:</b> ${f.remediation}</div>` : ''}
+     </div>
+   `).join('');
+ }
+
+ $('#findSevFilter')?.addEventListener('change', renderAllFindingsView);
+ $('#findStatusFilter')?.addEventListener('change', renderAllFindingsView);
+
+ // ── Wi-Fi Scan Execution ──
+ function triggerWifiScan() {
+   const scanBtns = [$('#globalScanBtn'), $('#wifiViewScanBtn')].filter(Boolean);
+   scanBtns.forEach(b => b.disabled = true);
+
+   $('#dashProgressText').textContent = 'Scanning wireless spectrum…';
+   $('#dashProgressNum').textContent = '25%';
+   $('#dashProgressBar').style.width = '25%';
+
+   const wifiPBox = $('#wifiProgressBox');
+   if (wifiPBox) {
+     wifiPBox.style.display = 'block';
+     $('#wifiScanStatusText').textContent = 'Scanning 802.11 channels across 2.4 GHz & 5 GHz bands…';
+     $('#wifiScanBar').style.width = '25%';
+     $('#wifiScanPct').textContent = '25%';
+   }
+
+   addLog('Wi-Fi spectrum scan initiated', 'Broadcasting probe requests on physical adapters', 'var(--amber)');
+   toast('Scan Started', 'Scanning physical wireless channels for routers and hotspots…');
+
+   api('/api/wifi/scan', { method: 'POST' })
+     .then(res => {
+       const scanId = res.data.scan_id;
+       activeScanId = scanId;
+       let attempts = 0;
+
+       clearInterval(scanPoller);
+       scanPoller = setInterval(async () => {
+         attempts++;
+         const pct = Math.min(95, 25 + attempts * 15);
+         $('#dashProgressBar').style.width = pct + '%';
+         $('#dashProgressNum').textContent = pct + '%';
+         if ($('#wifiScanBar')) {
+           $('#wifiScanBar').style.width = pct + '%';
+           $('#wifiScanPct').textContent = pct + '%';
+         }
+
+         try {
+           const st = await api(`/api/wifi/scan/${scanId}/status`);
+           if (st.data.status === 'completed') {
+             clearInterval(scanPoller);
+             scanPoller = null;
+             scanBtns.forEach(b => b.disabled = false);
+
+             $('#dashProgressBar').style.width = '100%';
+             $('#dashProgressNum').textContent = '100%';
+             $('#dashProgressText').textContent = 'Scan completed';
+             if (wifiPBox) wifiPBox.style.display = 'none';
+
+             const nets = await api(`/api/wifi/scan/${scanId}/networks`);
+             renderNetworks(nets);
+             const findings = await api(`/api/findings/${scanId}`);
+             renderFindings(findings);
+
+             addLog(`Scan complete: ${nets.length} physical APs/hotspots found`, `Scan ID: ${scanId.substring(0,8)}…`, 'var(--green)');
+             toast('Scan Finished', `Discovered ${nets.length} routers and hotspots in range.`);
+             loadScansDropdown();
+           } else if (st.data.status === 'error') {
+             clearInterval(scanPoller);
+             scanPoller = null;
+             scanBtns.forEach(b => b.disabled = false);
+             if (wifiPBox) wifiPBox.style.display = 'none';
+             toast('Scan Error', st.data.error_message || 'Adapter error');
+             addLog('Scan failed', st.data.error_message || 'Hardware error', 'var(--red)');
+           }
+         } catch (e) {
+           clearInterval(scanPoller);
+           scanPoller = null;
+           scanBtns.forEach(b => b.disabled = false);
+           console.error(e);
+         }
+       }, 1500);
+     })
+     .catch(err => {
+       scanBtns.forEach(b => b.disabled = false);
+       if (wifiPBox) wifiPBox.style.display = 'none';
+       toast('Error', err.message);
+       addLog('Scan failed to launch', err.message, 'var(--red)');
+     });
+ }
+
+ $('#globalScanBtn').onclick = triggerWifiScan;
+ $('#wifiViewScanBtn').onclick = triggerWifiScan;
+
+ // ── Device Inventory Execution ──
+ $('#startDevScanBtn')?.addEventListener('click', async () => {
+   const range = $('#devRangeField').value.trim();
+   const iface = $('#devIfaceField').value.trim();
+   const auth = $('#devAuthConfirm').checked;
+
+   if (!auth) {
+     toast('Authorization Required', 'Please confirm authorization for this network range.');
+     return;
+   }
+
+   const btn = $('#startDevScanBtn');
+   btn.disabled = true;
+   const pBox = $('#devScanProgressBox');
+   pBox.style.display = 'block';
+   $('#devScanBar').style.width = '20%';
+   $('#devScanPct').textContent = '20%';
+   $('#devScanStatusText').textContent = `Initiating sweep across ${range}…`;
+
+   addLog(`Device discovery sweep started on ${range}`, `Interface: ${iface}`, 'var(--amber)');
+   toast('Device Sweep Started', `Sweeping ${range} for connected hosts…`);
+
+   try {
+     const res = await api('/api/devices/scan', {
+       method: 'POST',
+       body: JSON.stringify({ network_range: range, interface: iface, authorized: true })
+     });
+     const scanId = res.data.scan_id;
+     let attempts = 0;
+
+     const devPoller = setInterval(async () => {
+       attempts++;
+       const pct = Math.min(95, 20 + attempts * 12);
+       $('#devScanBar').style.width = pct + '%';
+       $('#devScanPct').textContent = pct + '%';
+
+       try {
+         const st = await api(`/api/devices/scan/${scanId}/status`);
+         if (st.data.status === 'completed') {
+           clearInterval(devPoller);
+           btn.disabled = false;
+           pBox.style.display = 'none';
+
+           const devs = await api(`/api/devices/scan/${scanId}/devices`);
+           renderDevicesTable(devs);
+           addLog(`Device sweep completed: ${devs.length} hosts found`, range, 'var(--green)');
+           toast('Device Sweep Finished', `Discovered ${devs.length} reachable hosts.`);
+         } else if (st.data.status === 'error') {
+           clearInterval(devPoller);
+           btn.disabled = false;
+           pBox.style.display = 'none';
+           toast('Device Sweep Failed', st.data.error_message);
+         }
+       } catch (e) {
+         clearInterval(devPoller);
+         btn.disabled = false;
+         pBox.style.display = 'none';
+       }
+     }, 2000);
+   } catch (err) {
+     btn.disabled = false;
+     pBox.style.display = 'none';
+     toast('Scan Error', err.message);
+   }
+ });
+
+ async function loadDevicesView() {
+   try {
+     const scans = await api('/api/devices/scans');
+     if (scans && scans.length > 0) {
+       const latest = scans[0];
+       const devs = await api(`/api/devices/scan/${latest.id}/devices`);
+       renderDevicesTable(devs);
+     }
+   } catch (e) {
+     console.error(e);
+   }
+ }
+
+ function renderDevicesTable(devices) {
+   allDevices = devices || [];
+   $('#dashDevCount').textContent = String(allDevices.length).padStart(2, '0');
+   const camCount = allDevices.filter(d => d.is_potential_camera).length;
+   $('#dashCamCount').textContent = String(camCount).padStart(2, '0');
+
+   const tbody = $('#devFullRows');
+   if (!tbody) return;
+   if (!allDevices.length) {
+     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted)">No reachable hosts discovered in this sweep.</td></tr>';
+     return;
+   }
+
+   tbody.innerHTML = allDevices.map(d => {
+     let ports = [];
+     try { ports = JSON.parse(d.open_ports || '[]'); } catch {}
+     return `
+       <tr>
+         <td style="font-family:monospace;font-weight:bold;color:var(--cyan)">${d.ip_address}</td>
+         <td style="font-family:monospace;color:var(--muted)">${d.mac_address || 'N/A (Layer-3)'}</td>
+         <td><b>${d.hostname || 'Unknown Host'}</b></td>
+         <td>${ports.length ? ports.join(', ') : 'None'}</td>
+         <td><span class="tag blue">${d.services ? Object.values(JSON.parse(d.services || '{}')).join(', ') || 'Active' : 'TCP'}</span></td>
+         <td>${d.is_potential_camera ? '<span class="tag amber">⚠️ RTSP Indicator (554)</span>' : '<span class="tag green">No Camera Flag</span>'}</td>
+         <td style="color:var(--muted);font-size:10px">${d.discovered_at ? new Date(d.discovered_at).toLocaleTimeString() : 'Live'}</td>
+       </tr>
+     `;
+   }).join('');
+ }
+
+ // ── Camera & Privacy Logic ──
+ function loadCameraView() {
+   const container = $('#cameraDevicesContainer');
+   if (!container) return;
+   const camDevs = allDevices.filter(d => d.is_potential_camera);
+   if (!camDevs.length) {
+     container.innerHTML = `
+       <div style="background:#0d141e;border:1px solid #27303d;padding:16px;border-radius:8px;color:var(--muted);font-size:11px">
+        No IP camera indicators detected in recent device scans. Run a <b>Device Sweep</b> on your subnet to discover open RTSP (554/8554) or ONVIF streaming ports.
+       </div>
+     `;
+     return;
+   }
+   container.innerHTML = camDevs.map(d => `
+     <div style="background:#160c13;border:1px solid #713044;border-radius:8px;padding:14px;display:flex;justify-content:space-between;align-items:center">
+       <div>
+         <strong style="color:var(--red);font-size:13px">Potential Camera / Video Server: ${d.ip_address}</strong>
+         <p style="font-size:11px;color:#cfd8dc;margin:4px 0">Hostname: ${d.hostname || 'N/A'} | MAC: ${d.mac_address || 'N/A'}</p>
+         <span style="font-size:10px;color:var(--amber)">Indicators: RTSP Streaming Service (Port 554/8554 open)</span>
+       </div>
+       <button class="btn secondary" onclick="openModal('Physical Verification Protocol', 'Perform physical verification at the IP location. Confirm if device is an authorized security camera, media hub, or unknown rogue hardware.', 'Close')">Physical Audit Guide ↗</button>
+     </div>
+   `).join('');
+ }
+
+ const savedNotes = localStorage.getItem('gs_camera_notes');
+ if (savedNotes && $('#camNotesField')) $('#camNotesField').value = savedNotes;
+
+ $('#saveCamNotesBtn')?.addEventListener('click', () => {
+   const val = $('#camNotesField').value;
+   localStorage.setItem('gs_camera_notes', val);
+   const st = $('#camNotesSaveStatus');
+   st.textContent = '✔ Saved to local browser storage';
+   setTimeout(() => { st.textContent = ''; }, 3000);
+   toast('Notes Saved', 'Physical inspection notes saved securely in local browser storage.');
+ });
+
+ // ── Password Audit Execution ──
+ $('#pwToggleBtn')?.addEventListener('click', () => {
+   const inp = $('#pwAuditInput');
+   inp.type = inp.type === 'password' ? 'text' : 'password';
+   $('#pwToggleBtn').textContent = inp.type === 'password' ? '👁 Show' : '🔒 Hide';
+ });
+
+ $('#runPwAuditBtn')?.addEventListener('click', async () => {
+   const pw = $('#pwAuditInput').value;
+   const label = $('#pwAuditLabel').value || 'unnamed';
+   if (!pw) {
+     toast('Empty Password', 'Please enter a password to evaluate.');
+     return;
+   }
+   try {
+     const res = await api('/api/password/audit', {
+       method: 'POST',
+       body: JSON.stringify({ password: pw, label: label })
+     });
+     const colors = ['#ff304f', '#ff8c00', '#ffbd4a', '#8bdcff', '#39e6a0'];
+     const box = $('#pwAuditResultBox');
+     box.style.display = 'block';
+
+     $('#pwResLabel').textContent = `${res.score_label} (${res.score}/4)`;
+     $('#pwResLabel').style.color = colors[res.score];
+     $('#pwResScore').textContent = `Score: ${res.score}/4`;
+     $('#pwResScore').className = `tag ${res.score >= 3 ? 'green' : (res.score === 2 ? 'amber' : 'red')}`;
+
+     $('#pwResBar').style.width = `${(res.score + 1) * 20}%`;
+     $('#pwResBar').style.background = colors[res.score];
+
+     $('#pwResTime').textContent = res.crack_time_display;
+     $('#pwResLen').textContent = res.length;
+     $('#pwResPattern').textContent = res.has_common_pattern ? 'Yes (Weak dictionary pattern)' : 'No';
+     $('#pwResPattern').style.color = res.has_common_pattern ? 'var(--red)' : 'var(--green)';
+     $('#pwResWarning').textContent = res.warning ? `⚠️ ${res.warning}` : '';
+
+     const sugg = $('#pwResSuggestions');
+     sugg.innerHTML = res.suggestions.length ? `<b>Recommendations:</b><ul>${res.suggestions.map(s => `<li>${s}</li>`).join('')}</ul>` : '';
+
+     addLog('Password entropy audited', `Score: ${res.score}/4 · Evaluated locally`, 'var(--blue)');
+     toast('Audit Complete', `Score: ${res.score_label} (${res.score}/4)`);
+   } catch (e) {
+     toast('Password Audit Error', e.message);
+   }
+ });
+
+ $('#genStrongPwBtn')?.addEventListener('click', () => {
+   const chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*()_+';
+   let pass = '';
+   const arr = new Uint32Array(20);
+   crypto.getRandomValues(arr);
+   for (let i = 0; i < 20; i++) pass += chars[arr[i] % chars.length];
+   $('#pwAuditInput').value = pass;
+   $('#pwAuditInput').type = 'text';
+   $('#pwToggleBtn').textContent = '🔒 Hide';
+   $('#runPwAuditBtn').click();
+   toast('Passphrase Generated', '20-character high-entropy passphrase generated.');
+ });
+
+ // ── Scan History ──
+ async function loadScanHistory() {
+   const tbody = $('#histFullRows');
+   if (!tbody) return;
+   try {
+     const [wScans, dScans] = await Promise.all([
+       api('/api/wifi/scans'),
+       api('/api/devices/scans')
+     ]);
+     allScans = [...wScans, ...dScans].sort((a,b) => new Date(b.started_at) - new Date(a.started_at));
+
+     if (!allScans.length) {
+       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted)">No scan history records found in database.</td></tr>';
+       return;
+     }
+
+     tbody.innerHTML = allScans.map(s => {
+       const isWifi = s.scan_type === 'wifi_discovery';
+       return `
+         <tr>
+           <td style="font-family:monospace;color:var(--cyan)">${s.id.substring(0,8)}…</td>
+           <td><b>${isWifi ? 'Wi-Fi Discovery' : 'Device Discovery'}</b></td>
+           <td><span class="tag ${s.status === 'completed' ? 'green' : 'amber'}">${s.status.toUpperCase()}</span></td>
+           <td style="color:var(--muted)">${s.scope || 'Physical 802.11 RF'}</td>
+           <td style="font-size:10px">${new Date(s.started_at).toLocaleString()}</td>
+           <td style="font-size:10px;color:var(--muted)">${s.completed_at ? new Date(s.completed_at).toLocaleTimeString() : '—'}</td>
+           <td>
+             <button class="btn ghost" style="padding:4px 8px;font-size:10px" onclick="viewHistoryItem('${s.id}', '${s.scan_type}')">Inspect ↗</button>
+           </td>
+         </tr>
+       `;
+     }).join('');
+   } catch (e) {
+     tbody.innerHTML = `<tr><td colspan="7" style="color:var(--red);text-align:center">${e.message}</td></tr>`;
+   }
+ }
+
+ window.viewHistoryItem = async function(scanId, scanType) {
+   if (scanType === 'wifi_discovery') {
+     const nets = await api(`/api/wifi/scan/${scanId}/networks`);
+     renderNetworks(nets);
+     const findings = await api(`/api/findings/${scanId}`);
+     renderFindings(findings);
+     openNavPage('Wi-Fi Discovery');
+     toast('Loaded Scan', `Loaded Wi-Fi scan ${scanId.substring(0,8)}…`);
+   } else {
+     const devs = await api(`/api/devices/scan/${scanId}/devices`);
+     renderDevicesTable(devs);
+     openNavPage('Device Inventory');
+     toast('Loaded Scan', `Loaded device sweep ${scanId.substring(0,8)}…`);
+   }
+ };
+
+ $('#refreshHistBtn')?.addEventListener('click', loadScanHistory);
+
+ // ── Reports Logic ──
+ async function loadReportsView() {
+   loadScansDropdown();
+   const tbody = $('#reportsListRows');
+   if (!tbody) return;
+   try {
+     const reps = await api('/api/reports/list');
+     if (!reps.length) {
+       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No reports generated yet. Select a scan and click generate.</td></tr>';
+       return;
+     }
+     tbody.innerHTML = reps.map(r => `
+       <tr>
+         <td style="font-family:monospace;color:var(--text)">${r.filename}</td>
+         <td><span class="tag ${r.format === 'pdf' ? 'red' : (r.format === 'html' ? 'green' : 'blue')}">${r.format.toUpperCase()}</span></td>
+         <td style="font-family:monospace;color:var(--cyan)">${r.scan_id.substring(0,8)}…</td>
+         <td style="color:var(--muted)">${r.size_bytes ? (r.size_bytes / 1024).toFixed(1) + ' KB' : 'N/A'}</td>
+         <td style="font-size:10px">${new Date(r.generated_at).toLocaleString()}</td>
+         <td>
+           <a href="/api/reports/download/${r.id}" target="_blank" class="btn secondary" style="padding:4px 8px;font-size:10px">⬇ Download</a>
+         </td>
+       </tr>
+     `).join('');
+   } catch (e) {
+     tbody.innerHTML = `<tr><td colspan="6" style="color:var(--red)">${e.message}</td></tr>`;
+   }
+ }
+
+ async function loadScansDropdown() {
+   const sel1 = $('#auditScanSelect');
+   const sel2 = $('#reportGenScanSelect');
+   try {
+     const scans = await api('/api/wifi/scans');
+     const opts = scans.map(s => `<option value="${s.id}">Wi-Fi Scan (${s.id.substring(0,8)}…) - ${new Date(s.started_at).toLocaleTimeString()}</option>`).join('');
+     if (sel1) sel1.innerHTML = opts || '<option value="">No scans available</option>';
+     if (sel2) sel2.innerHTML = opts || '<option value="">No scans available</option>';
+   } catch {}
+ }
+
+ $('#auditScanSelect')?.addEventListener('change', async () => {
+   const sid = $('#auditScanSelect').value;
+   if (!sid) return;
+   const findings = await api(`/api/findings/${sid}`);
+   liveFindings = findings;
+   renderAuditViewFindings();
+ });
+
+ function loadAuditView() {
+   loadScansDropdown();
+   renderAuditViewFindings();
+ }
+
+ $('#generateReportBtn')?.addEventListener('click', async () => {
+   const sid = $('#reportGenScanSelect').value || activeScanId;
+   const fmt = $('#reportGenFormat').value;
+   if (!sid) {
+     toast('No Scan Selected', 'Run or select a Wi-Fi scan first.');
+     return;
+   }
+   toast('Generating Report', `Compiling ${fmt.toUpperCase()} report from evidence…`);
+   try {
+     const res = await api(`/api/reports/generate?scan_id=${encodeURIComponent(sid)}&fmt=${fmt}`, { method: 'POST' });
+     toast('Report Ready', 'Downloading certified audit report…');
+     window.open(`/api/reports/download/${res.data.report_id}`, '_blank');
+     loadReportsView();
+   } catch (e) {
+     toast('Report Error', e.message);
+   }
+ });
+
+ // ── Hardware Info ──
+
+  // ── Rogue AP & Evil Twin Detection Logic ──
+  window.addToBaselineIdx = function(idx) {
+    const list = window.currentFilteredNetworks || liveNetworks;
+    const n = list[idx];
+    if (!n) return;
+    openNavPage('Rogue AP Detection');
+    $('#baseSsidInput').value = n.ssid || '';
+    $('#baseBssidsInput').value = n.bssid || '';
+    const sec = (n.security || '').toUpperCase();
+    if (sec.includes('WPA3')) $('#baseSecInput').value = 'WPA3';
+    else if (sec.includes('ENTERPRISE')) $('#baseSecInput').value = 'WPA2-Enterprise';
+    else $('#baseSecInput').value = 'WPA2';
+    if (n.channel) $('#baseChannelsInput').value = n.channel;
+    toast('Baseline Pre-filled', `Network ${n.ssid || n.bssid} loaded into baseline form.`);
+  };
+
+  async function ensureLiveNetworks() {
+    if (liveNetworks && liveNetworks.length > 0) return liveNetworks;
+    try {
+      const scans = await api('/api/wifi/scans');
+      if (scans && scans.length > 0) {
+        const nets = await api(`/api/wifi/scan/${scans[0].id}/networks`);
+        if (nets && nets.length > 0) {
+          liveNetworks = nets;
+          updateNetworkDropdowns();
+          renderWifiFullTable();
+        }
+      }
+    } catch {}
+    return liveNetworks;
+  }
+
+  function populateBaselineDropdown() {
+    const sel = $('#baseTargetSelect');
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">-- Choose from visible airwaves --</option>' +
+      liveNetworks.map(n => `<option value="${encodeURIComponent(JSON.stringify(n))}">${n.ssid || '(Hidden SSID)'} [${n.bssid}] (${n.security || 'Open'}) Ch:${n.channel || '?'}</option>`).join('');
+    if (currentVal) sel.value = currentVal;
+  }
+
+  async function loadRogueView() {
+    await ensureLiveNetworks();
+    await loadBaselines();
+    populateBaselineDropdown();
+  }
+
+  async function loadBaselines() {
+    const tbody = $('#baselineTableRows');
+    try {
+      const list = await api('/api/baseline/list');
+      $('#rogueStatBaselines').textContent = list.length;
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">No baselines configured. Add your primary router above.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(b => {
+        let bssids = [];
+        try { bssids = JSON.parse(b.allowed_bssids); } catch { bssids = [b.allowed_bssids]; }
+        let chs = [];
+        try { chs = JSON.parse(b.allowed_channels); } catch { chs = []; }
+        return `
+          <tr>
+            <td><b style="color:var(--text)">${b.ssid}</b></td>
+            <td style="font-family:monospace;color:var(--cyan);font-size:11px">${bssids.join(', ')}</td>
+            <td>${getSecurityTag(b.expected_security)}</td>
+            <td style="color:var(--muted)">${chs.length ? chs.join(', ') : 'Any'}</td>
+            <td>
+              <button class="btn secondary" style="padding:2px 6px;font-size:10px" onclick="deleteBaseline('${b.id}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--red);padding:14px">Failed to load baselines: ${e.message}</td></tr>`;
+    }
+  }
+
+  async function saveBaseline() {
+    const ssid = $('#baseSsidInput').value.trim();
+    const rawBssids = $('#baseBssidsInput').value.trim();
+    const sec = $('#baseSecInput').value;
+    const rawCh = $('#baseChannelsInput').value.trim();
+    const notes = $('#baseNotesInput').value.trim();
+
+    if (!ssid) {
+      toast('Input Required', 'Please enter a target network SSID.');
+      return;
+    }
+    if (!rawBssids) {
+      toast('Input Required', 'Please enter at least one authorized BSSID/MAC address.');
+      return;
+    }
+
+    const bssids = rawBssids.split(',').map(m => m.trim()).filter(Boolean);
+    const channels = rawCh ? rawCh.split(',').map(c => parseInt(c.trim())).filter(c => !isNaN(c)) : [];
+
+    try {
+      const res = await api('/api/baseline/add', {
+        method: 'POST',
+        body: JSON.stringify({
+          ssid,
+          allowed_bssids: bssids,
+          expected_security: sec,
+          allowed_channels: channels,
+          notes: notes || null
+        })
+      });
+      toast('Baseline Saved', res.message);
+      addLog(`Trusted baseline saved: ${ssid}`, `${bssids.length} authorized BSSID(s)`, 'var(--cyan)');
+      $('#baseSsidInput').value = '';
+      $('#baseBssidsInput').value = '';
+      $('#baseChannelsInput').value = '';
+      $('#baseNotesInput').value = '';
+      loadBaselines();
+    } catch (e) {
+      toast('Error Saving Baseline', e.message);
+    }
+  }
+
+  window.deleteBaseline = async function(id) {
+    if (!confirm('Are you sure you want to remove this trusted baseline?')) return;
+    try {
+      const res = await api(`/api/baseline/${id}`, { method: 'DELETE' });
+      toast('Baseline Deleted', res.message);
+      loadBaselines();
+    } catch (e) {
+      toast('Delete Error', e.message);
+    }
+  };
+
+  async function runRogueAudit() {
+    const container = $('#rogueAlertsContainer');
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--cyan)"><i class="dot blink"></i> Auditing visible airwaves against trusted baselines…</div>';
+    try {
+      const res = await api('/api/baseline/audit_rogues', { method: 'POST' });
+      const data = res.data || {};
+      $('#rogueStatBaselines').textContent = data.total_baselines || 0;
+      $('#rogueStatRogues').textContent = data.rogues_detected || 0;
+      $('#rogueStatDowngrades').textContent = data.downgrades_detected || 0;
+      $('#rogueStatChannels').textContent = data.channel_anomalies || 0;
+
+      const findings = data.findings || [];
+      if (!findings.length) {
+        container.innerHTML = `
+          <div style="background:#0c1a14;border:1px solid #234d38;border-radius:10px;padding:16px;text-align:center;color:var(--green)">
+            <b>✓ Airwaves Clean:</b> No unauthorized BSSIDs or security downgrades detected across ${data.total_baselines} active baselines.
+          </div>
+        `;
+        toast('Rogue Audit Clean', 'Zero rogue APs or evil twins detected.');
+        addLog('Rogue AP audit passed cleanly', `Audited ${data.matched_networks} observed APs across ${data.total_baselines} baselines`, 'var(--green)');
+        return;
+      }
+
+      container.innerHTML = findings.map(f => {
+        const isCrit = f.severity === 'critical';
+        return `
+          <div style="background:#130b0e;border:1px solid ${isCrit ? 'var(--red)' : '#743044'};border-radius:10px;padding:16px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <span class="tag ${isCrit ? 'red' : 'amber'}">${f.severity.toUpperCase()}</span>
+              <span class="tag blue">${f.status.toUpperCase()}</span>
+              <strong style="color:var(--text);font-size:13px">${f.title}</strong>
+            </div>
+            <p style="margin:0 0 10px;color:#c4d1e0;font-size:11px">${f.description}</p>
+            <div style="background:#080c12;border-radius:6px;padding:10px;margin-bottom:10px;font-family:monospace;font-size:11px;color:var(--cyan)">
+              ${(f.evidence || []).map(e => `<div>▸ ${e}</div>`).join('')}
+            </div>
+            <div style="font-size:11px;color:#9cb0c6">
+              <strong style="color:var(--amber)">Recommended Remediation:</strong>
+              <div style="margin-top:3px;white-space:pre-line">${f.remediation}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      toast('Rogue Audit Alert', `${findings.length} rogue / downgrade warning(s) flagged!`);
+      addLog(`Rogue AP Alert: ${findings.length} anomalies found`, `Flagged ${data.rogues_detected} evil twins, ${data.downgrades_detected} downgrades`, 'var(--red)');
+    } catch (e) {
+      container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--red)">Audit failed: ${e.message}</div>`;
+      toast('Audit Failed', e.message);
+    }
+  }
+
+  $('#saveBaselineBtn')?.addEventListener('click', saveBaseline);
+  $('#clearBaselineFormBtn')?.addEventListener('click', () => {
+    if ($('#baseTargetSelect')) $('#baseTargetSelect').value = '';
+    $('#baseSsidInput').value = '';
+    $('#baseBssidsInput').value = '';
+    $('#baseChannelsInput').value = '';
+    $('#baseNotesInput').value = '';
+  });
+  $('#refreshBaselinesBtn')?.addEventListener('click', loadBaselines);
+  $('#runRogueAuditBtn')?.addEventListener('click', runRogueAudit);
+
+  $('#baseTargetSelect')?.addEventListener('change', e => {
+    if (!e.target.value) return;
+    try {
+      const net = JSON.parse(decodeURIComponent(e.target.value));
+      $('#baseSsidInput').value = net.ssid || '';
+      $('#baseBssidsInput').value = net.bssid || '';
+      const sec = (net.security || '').toUpperCase();
+      if (sec.includes('WPA3')) $('#baseSecInput').value = 'WPA3';
+      else if (sec.includes('ENTERPRISE')) $('#baseSecInput').value = 'WPA2-Enterprise';
+      else $('#baseSecInput').value = 'WPA2';
+      $('#baseChannelsInput').value = net.channel || '';
+      $('#baseNotesInput').value = `Authorized AP: ${net.ssid || 'AP'} (${net.bssid}), Signal: ${net.signal_dbm !== null ? net.signal_dbm + ' dBm' : 'N/A'}`;
+      toast('Baseline Target Loaded', `Auto-populated parameters for ${net.ssid || net.bssid}`);
+    } catch {}
+  });
+
+  // ── Controlled Wireless Security Lab Logic ──
+  window.testInLabIdx = function(idx) {
+    const list = window.currentFilteredNetworks || liveNetworks;
+    const n = list[idx];
+    if (!n) return;
+    openNavPage('Security Lab');
+    $('#labSsidInput').value = n.ssid || '';
+    $('#labBssidInput').value = n.bssid || '';
+    const s = (n.security || '').toUpperCase();
+    if (s.includes('WPA3')) $('#labSecInput').value = 'WPA3-SAE';
+    else if (s.includes('WEP')) $('#labSecInput').value = 'WEP';
+    else if (s.includes('OPEN')) $('#labSecInput').value = 'OPEN';
+    else if (s.includes('TKIP')) $('#labSecInput').value = 'WPA-TKIP';
+    else $('#labSecInput').value = 'WPA2-PSK';
+    if (n.channel) $('#labChannelInput').value = n.channel;
+    if ($('#labGatewayIpInput') && !$('#labGatewayIpInput').value && window.defaultGatewayIp) {
+      $('#labGatewayIpInput').value = window.defaultGatewayIp;
+    }
+    if ($('#labAuthCheckbox')) $('#labAuthCheckbox').checked = true;
+    if ($('#executeLabBtn')) $('#executeLabBtn').disabled = false;
+    toast('Lab Target Loaded', `Target ${n.ssid || n.bssid} ready for authorized testing.`);
+  };
+
+  async function loadLabView() {
+    await ensureLiveNetworks();
+    const sel = $('#labTargetSelect');
+    if (sel) {
+      const currentVal = sel.value;
+      sel.innerHTML = '<option value="">-- Choose from visible airwaves --</option>' +
+        liveNetworks.map(n => `<option value="${encodeURIComponent(JSON.stringify(n))}">${n.ssid || '(Hidden SSID)'} [${n.bssid}] (${n.security || 'Open'}) Ch:${n.channel || '?'}</option>`).join('');
+      if (currentVal) sel.value = currentVal;
+    }
+  }
+
+  $('#labTargetSelect')?.addEventListener('change', e => {
+    if (!e.target.value) return;
+    try {
+      const net = JSON.parse(decodeURIComponent(e.target.value));
+      $('#labSsidInput').value = net.ssid || '';
+      $('#labBssidInput').value = net.bssid || '';
+      $('#labChannelInput').value = net.channel || '';
+      const s = (net.security || '').toUpperCase();
+      if (s.includes('WPA3')) $('#labSecInput').value = 'WPA3-SAE';
+      else if (s.includes('WEP')) $('#labSecInput').value = 'WEP';
+      else if (s.includes('OPEN')) $('#labSecInput').value = 'OPEN';
+      else if (s.includes('TKIP')) $('#labSecInput').value = 'WPA-TKIP';
+      else $('#labSecInput').value = 'WPA2-PSK';
+
+      if ($('#labGatewayIpInput') && !$('#labGatewayIpInput').value && window.defaultGatewayIp) {
+        $('#labGatewayIpInput').value = window.defaultGatewayIp;
+      }
+      if ($('#labAuthCheckbox')) $('#labAuthCheckbox').checked = true;
+      if ($('#executeLabBtn')) $('#executeLabBtn').disabled = false;
+      toast('Lab Target Loaded', `Ready to audit ${net.ssid || net.bssid}`);
+    } catch {}
+  });
+
+  function updateNetworkDropdowns() {
+    populateBaselineDropdown();
+    const sel = $('#labTargetSelect');
+    if (sel) {
+      const currentVal = sel.value;
+      sel.innerHTML = '<option value="">-- Choose from visible airwaves --</option>' +
+        liveNetworks.map(n => `<option value="${encodeURIComponent(JSON.stringify(n))}">${n.ssid || '(Hidden SSID)'} [${n.bssid}] (${n.security || 'Open'}) Ch:${n.channel || '?'}</option>`).join('');
+      if (currentVal) sel.value = currentVal;
+    }
+  }
+
+  $('#labAuthCheckbox')?.addEventListener('change', e => {
+    $('#executeLabBtn').disabled = !e.target.checked;
+  });
+
+  async function executeLabAssessment() {
+    const ssid = $('#labSsidInput').value.trim();
+    const bssid = $('#labBssidInput').value.trim();
+    const sec = $('#labSecInput').value;
+    const channel = parseInt($('#labChannelInput').value) || null;
+    const routerIp = $('#labGatewayIpInput').value.trim() || null;
+    const authorized = $('#labAuthCheckbox').checked;
+
+    if (!ssid) {
+      toast('Input Required', 'Please provide a target SSID.');
+      return;
+    }
+    if (!authorized) {
+      toast('Authorization Required', 'You must confirm authorized ownership.');
+      return;
+    }
+
+    const container = $('#labFindingsContainer');
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--cyan)"><i class="dot blink"></i> Conducting controlled security lab audit…</div>';
+    $('#executeLabBtn').disabled = true;
+
+    try {
+      const res = await api('/api/lab/assess', {
+        method: 'POST',
+        body: JSON.stringify({
+          target_ssid: ssid,
+          target_bssid: bssid || null,
+          security: sec,
+          channel: channel,
+          router_ip: routerIp,
+          authorized: true
+        })
+      });
+
+      const data = res.data;
+      const scoreVal = $('#labScoreVal');
+      const scoreRing = $('#labScoreRing');
+      const postLabel = $('#labPostureLabel');
+      const postDetail = $('#labPostureDetail');
+
+      scoreVal.textContent = data.score;
+      postLabel.textContent = data.security_posture.replace('_', ' ');
+
+      let col = 'var(--green)';
+      if (data.score < 50) col = 'var(--red)';
+      else if (data.score < 75) col = 'var(--amber)';
+
+      scoreVal.style.color = col;
+      scoreRing.style.background = `conic-gradient(${col} 0 ${data.score}%, var(--line) ${data.score}% 100%)`;
+      postDetail.textContent = `Completed ${data.checks_run.length} technical inspection check(s) with ${data.findings.length} finding(s).`;
+
+      const checksList = $('#labChecksList');
+      checksList.innerHTML = data.checks_run.map(c => {
+        let stCol = 'var(--green)';
+        if (c.status.includes('CRITICAL') || c.status.includes('HIGH')) stCol = 'var(--red)';
+        else if (c.status.includes('RISK') || c.status.includes('POTENTIAL')) stCol = 'var(--amber)';
+        return `
+          <div style="font-size:11px;padding:8px;background:#080d13;border-radius:6px;display:flex;justify-content:space-between;align-items:center">
+            <span><b>${c.check}:</b> ${c.detail}</span>
+            <span style="color:${stCol};font-weight:700;font-size:10px">${c.status}</span>
+          </div>
+        `;
+      }).join('');
+
+      if (!data.findings.length) {
+        container.innerHTML = `
+          <div style="background:#0c1a14;border:1px solid #234d38;border-radius:10px;padding:16px;text-align:center;color:var(--green)">
+            <b>✓ Exemplary Configuration:</b> No vulnerabilities identified on target '${ssid}'.
+          </div>
+        `;
+      } else {
+        container.innerHTML = data.findings.map(f => {
+          const isCrit = f.severity === 'critical';
+          const isHigh = f.severity === 'high';
+          return `
+            <div style="background:#130b0e;border:1px solid ${isCrit ? 'var(--red)' : isHigh ? '#a80f2a' : '#573318'};border-radius:10px;padding:16px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <span class="tag ${isCrit ? 'red' : isHigh ? 'red' : 'amber'}">${f.severity.toUpperCase()}</span>
+                <span class="tag blue">${f.status.toUpperCase()}</span>
+                <strong style="color:var(--text);font-size:13px">${f.title}</strong>
+              </div>
+              <p style="margin:0 0 10px;color:#c4d1e0;font-size:11px">${f.description}</p>
+              <div style="background:#080c12;border-radius:6px;padding:10px;margin-bottom:10px;font-family:monospace;font-size:11px;color:var(--cyan)">
+                ${(f.evidence || []).map(e => `<div>▸ ${e}</div>`).join('')}
+              </div>
+              <div style="font-size:11px;color:#9cb0c6">
+                <strong style="color:var(--amber)">Remediation:</strong>
+                <div style="margin-top:3px">${f.remediation}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      toast('Lab Assessment Complete', `Score: ${data.score}/100 (${data.security_posture})`);
+      addLog(`Controlled lab test on ${ssid}: Score ${data.score}/100`, `${data.findings.length} findings, posture: ${data.security_posture}`, col);
+    } catch (e) {
+      container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--red)">Lab assessment failed: ${e.message}</div>`;
+      toast('Lab Test Failed', e.message);
+    } finally {
+      $('#executeLabBtn').disabled = !$('#labAuthCheckbox').checked;
+    }
+  }
+
+  $('#executeLabBtn')?.addEventListener('click', executeLabAssessment);
+ async function loadHardwareInfo() {
+   try {
+     const hw = await api('/api/system/hardware');
+     $('#topEnv').innerHTML = `◈ ${hw.os_name} <span style="color:var(--muted);font-weight:400">/ v0.1.0</span>`;
+     $('#dashDiagOS').textContent = `${hw.os_name} ${hw.os_version.substring(0, 25)}`;
+     $('#setOS').textContent = `${hw.os_name} ${hw.os_version}`;
+     $('#setPython').textContent = hw.python_version.split(' ')[0];
+
+     if (hw.wireless_interfaces && hw.wireless_interfaces.length > 0) {
+       $('#adapterText').innerHTML = `Adapter: <b>${hw.wireless_interfaces.join(', ')}</b> (${hw.wireless_interfaces.length} online)`;
+       $('#dashDiagAdapters').textContent = `${hw.wireless_interfaces.length} active`;
+       $('#setAdapters').innerHTML = `<b style="color:var(--green)">${hw.wireless_interfaces.join(', ')}</b> (${hw.wireless_interfaces.length} detected)`;
+     } else {
+       $('#adapterText').innerHTML = `<span style="color:var(--amber)">No Wi-Fi adapter detected</span>`;
+       $('#dashDiagAdapters').textContent = 'None detected';
+       $('#setAdapters').innerHTML = '<span style="color:var(--amber)">None detected</span>';
+     }
+
+     if (hw.nmap_available) {
+       $('#dashDiagNmap').textContent = 'Available';
+       $('#setNmap').innerHTML = `<span style="color:var(--green)">Available</span> (${hw.nmap_version || 'nmap'})`;
+     } else {
+       $('#dashDiagNmap').textContent = 'Socket Fallback';
+       $('#setNmap').innerHTML = '<span style="color:var(--amber)">Not found (Socket fallback active)</span>';
+     }
+
+     if (hw.monitor_mode_capable && hw.monitor_mode_capable.length > 0) {
+       $('#setMonitor').innerHTML = `<span style="color:var(--green)">Supported via Npcap</span> (${hw.monitor_mode_capable.join(', ')})`;
+     } else {
+       $('#setMonitor').innerHTML = '<span style="color:var(--amber)">Not supported without specialized driver</span>';
+     }
+
+     try {
+       const lic = await api('/api/system/license');
+       if (lic) {
+         if ($('#setEdition')) $('#setEdition').textContent = lic.tier_name;
+         if ($('#setLicenseActive')) $('#setLicenseActive').textContent = lic.active ? `Active (${lic.tier.toUpperCase()})` : 'Evaluation Mode';
+       }
+     } catch {}
+
+     if (hw.default_subnet && document.querySelector('#devRangeField')) {
+       document.querySelector('#devRangeField').value = hw.default_subnet;
+     }
+     if (hw.wireless_interfaces && hw.wireless_interfaces.length > 0 && document.querySelector('#devInterfaceField')) {
+       document.querySelector('#devInterfaceField').value = hw.wireless_interfaces[0];
+     }
+     if (hw.default_subnet) {
+       window.defaultGatewayIp = hw.default_subnet.replace(/\.0\/\d+$/, '.1');
+       if (document.querySelector('#labGatewayIpInput') && !document.querySelector('#labGatewayIpInput').value) {
+         document.querySelector('#labGatewayIpInput').value = window.defaultGatewayIp;
+       }
+     }
+   } catch (e) {
+     console.error('Diagnostics error:', e);
+   }
+ }
+
+ $('#refreshSettingsBtn')?.addEventListener('click', () => {
+   loadHardwareInfo();
+   toast('Diagnostics Refreshed', 'Hardware query updated.');
+ });
+
+ $('#helpBtn').onclick = () => {
+    openModal('GHOSTSENTINEL Ω — Documentation & Operational Manual', `
+      <div style="font-size:12px;color:#c0d2e5;line-height:1.6">
+        <div style="background:#0c1724;border:1px solid #1f364d;border-radius:8px;padding:12px;margin-bottom:14px">
+          <strong style="color:var(--cyan);font-size:13px">Platform Architecture &amp; Verification Principles</strong>
+          <p style="margin:4px 0 0;font-size:11px;color:#8ba3be">GHOSTSENTINEL Ω strictly implements deterministic, factual security assessment. Capabilities are verified directly against physical wireless adapters and operating-system APIs. Zero simulated results; zero fabricated vulnerabilities.</p>
+        </div>
+
+        <h4 style="color:var(--red);font-size:12px;margin:12px 0 6px">1. Physical Spectrum Scanning (Active RF Probe)</h4>
+        <p style="font-size:11px;color:#8ba3be;margin:0 0 8px">On Windows 11, background Wi-Fi scanning is normally suppressed while associated to an Access Point. GHOSTSENTINEL Ω invokes <code>ctypes.windll.wlanapi.WlanScan</code> across all physical adapter GUIDs with automated channel-dwell delay, capturing all nearby 2.4 GHz and 5 GHz APs in real time.</p>
+
+        <h4 style="color:var(--cyan);font-size:12px;margin:12px 0 6px">2. Rogue AP &amp; Evil Twin Defense</h4>
+        <p style="font-size:11px;color:#8ba3be;margin:0 0 8px">Register your authorized router in <b>Rogue AP Detection</b> (or use the one-click <i>+ Base</i> shortcut in Wi-Fi Discovery). The platform continuously verifies observed BSSID MAC addresses, encryption ciphers, and RF channels to alert you against unauthorized clones or evil twin downgrade attacks.</p>
+
+        <h4 style="color:var(--amber);font-size:12px;margin:12px 0 6px">3. Controlled Wireless Security Lab</h4>
+        <p style="font-size:11px;color:#8ba3be;margin:0 0 8px">Conduct deep-dive, non-destructive evaluations of user-owned test routers. Validates 802.11w Protected Management Frames (PMF) resistance to deauth spoofing, Pre-Shared Key entropy, WPS exposure, and gateway administration surfaces.</p>
+
+        <h4 style="color:var(--green);font-size:12px;margin:12px 0 6px">4. Driver &amp; Nmap Capabilities</h4>
+        <ul style="padding-left:18px;font-size:11px;color:#8ba3be;margin:0 0 8px;line-height:1.7">
+          <li><b>Nmap Integration:</b> Automatically locates <code>nmap.exe</code> across system PATH, Zenmap, and standard program directories.</li>
+          <li><b>Monitor Mode:</b> Automatically recognized on Windows via Npcap driver (<code>WlanHelper.exe</code>).</li>
+          <li><b>Scope Protection:</b> Host sweeps strictly enforce RFC-1918 private IPv4 subnets (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).</li>
+        </ul>
+
+        <div style="margin-top:14px;padding-top:10px;border-top:1px solid #1e2c3c;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:10px;color:var(--muted)">Localhost Secure: 127.0.0.1:8000</span>
+          <a href="/api/docs" target="_blank" style="color:var(--red);font-size:11px;text-decoration:underline;font-weight:700">Open Interactive Swagger API Docs ↗</a>
+        </div>
+      </div>
+    `, 'Close');
+  };
+
+  $('#settingsBtn').onclick = () => openNavPage('Settings');
+
+ $('#wifiExportCsv')?.addEventListener('click', () => {
+   if (!liveNetworks.length) {
+     toast('Export Error', 'No active Wi-Fi data to export.');
+     return;
+   }
+   let csv = 'SSID,BSSID,Channel,Frequency_MHz,Signal_dBm,Security,Encryption,Authentication,Observed_At\n';
+   liveNetworks.forEach(n => {
+     csv += `"${(n.ssid || '').replace(/"/g, '""')}","${n.bssid || ''}","${n.channel || ''}","${n.frequency_mhz || ''}","${n.signal_dbm || ''}","${n.security || ''}","${n.encryption || ''}","${n.authentication || ''}","${n.observed_at || ''}"\n`;
+   });
+   download('ghostsentinel-wifi-spectrum.csv', csv, 'text/csv');
+   toast('CSV Exported', `${liveNetworks.length} wireless networks exported.`);
+ });
+
+ function download(name, content, type){
+   const blob = new Blob([content], { type });
+   const url = URL.createObjectURL(blob);
+   const a = document.createElement('a');
+   a.href = url;
+   a.download = name;
+   document.body.append(a);
+   a.click();
+   a.remove();
+   setTimeout(() => URL.revokeObjectURL(url), 1000);
+ }
+
+ // ── Initial Load ──
+ document.addEventListener('DOMContentLoaded', async () => {
+   await loadHardwareInfo();
+   try {
+     const scans = await api('/api/wifi/scans');
+     if (scans && scans.length > 0) {
+       const latest = scans[0];
+       activeScanId = latest.id;
+       const nets = await api(`/api/wifi/scan/${latest.id}/networks`);
+       renderNetworks(nets);
+       const findings = await api(`/api/findings/${latest.id}`);
+       renderFindings(findings);
+       addLog(`Loaded scan session: ${latest.id.substring(0,8)}…`, `${nets.length} physical APs/hotspots in range`, 'var(--green)');
+     } else {
+       triggerWifiScan();
+     }
+   } catch {}
+
+   loadDevicesView();
+   loadScansDropdown();
+ });
+})();
+</script>
+</body>
+</html>
